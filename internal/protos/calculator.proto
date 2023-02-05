@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package calculator;
+
+option go_package = "generated/calculator";
+
+service CalculationService {
+  rpc Run(RunCalculationRequest) returns (RunCalculationResponse) {}
+}
+
+message RunCalculationRequest {
+  string equation = 1;
+}
+
+message RunCalculationResponse {
+  string result = 1;
+}
+
+message Error {
+	string code = 1;
+	string message = 2;
+}
