@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package calculator;
 
-option go_package = "generated/calculator";
+option go_package = "./pb";
 
 service CalculationService {
   rpc Run(RunCalculationRequest) returns (RunCalculationResponse) {}
