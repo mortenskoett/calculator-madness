@@ -13,7 +13,7 @@ message RunCalculationRequest {
 }
 
 message RunCalculationResponse {
-  string result = 1;
+  double result = 1;
 }
 
 message Error {
