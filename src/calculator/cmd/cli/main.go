@@ -35,7 +35,7 @@ func main() {
 
 	client := pb.NewCalculationServiceClient(conn)
 
-	result, err := client.Run(context.Background(), &pb.RunCalculationRequest{Equation: "1+1"})
+	result, err := client.Run(context.Background(), &pb.RunCalculationRequest{Equation: *equation})
 	if err != nil {
 		log.Println("an error occurred while solving the equation", err)
 	}
