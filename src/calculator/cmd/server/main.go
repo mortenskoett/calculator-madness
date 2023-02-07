@@ -21,7 +21,7 @@ func (s *calculationServer) Run(context context.Context, calculationRequest *pb.
 	eq := calc.Equation{Value: calculationRequest.Equation}
 	result, err := calc.Solve(eq)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to solve equation: %w", err)
+		return nil, fmt.Errorf("failed to solve equation: %w", err)
 	}
 	return &pb.RunCalculationResponse{
 		Result: result,
@@ -29,7 +29,7 @@ func (s *calculationServer) Run(context context.Context, calculationRequest *pb.
 }
 
 func main() {
-	log.Println("Starting calculator GRPC protobuf service")
+	log.Println("starting calculator GRPC protobuf service")
 	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Fatalf("failed to create listener: %v", err)
@@ -38,10 +38,10 @@ func main() {
 	server := grpc.NewServer()
 	pb.RegisterCalculationServiceServer(server, &calculationServer{})
 
-	// setup reflection to be able to work with grpcurl
+	// Setup reflection to be able to work with grpcurl
 	reflection.Register(server)
 
-	log.Println("Serving at :8000")
+	log.Println("serving at :8000")
 
 	if err := server.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
