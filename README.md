@@ -19,5 +19,5 @@ grpcurl --plaintext localhost:8000 list
 ```
 
 ### Dev iterations
-- 1) grpc/protobuf service for calculation + client calling service
-- 2) everything in docker + message broker to communicate indirectly with calculation service
+**OK** grpc/protobuf service for calculation + client calling service
+everything in docker + message broker to communicate indirectly with calculation service

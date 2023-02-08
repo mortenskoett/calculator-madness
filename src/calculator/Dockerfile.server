@@ -1,0 +1,26 @@
+# syntax=docker/dockerfile:1
+
+## Build
+FROM golang:1.18-buster AS build
+
+WORKDIR /app
+
+COPY go.mod ./
+COPY go.sum ./
+
+RUN go mod download
+
+COPY . .
+
+RUN GOOS=linux CGO_ENABLED=0 go build cmd/server/main.go
+
+## Prod
+FROM golang:alpine AS prod
+
+WORKDIR /
+
+COPY --from=build /app/main ./
+
+EXPOSE 8000
+
+ENTRYPOINT ["./main"]
