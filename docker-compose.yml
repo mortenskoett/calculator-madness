@@ -21,3 +21,9 @@ services:
       - nsqlookupd
     ports:
       - "4171"
+  calculator-server:
+    build:
+      context: ./src/calculator/
+      dockerfile: Dockerfile.server
+    ports:
+      - "8000:8000"

@@ -4,7 +4,6 @@ import (
 	"calculator/api/pb"
 	"context"
 	"flag"
-	"fmt"
 	"log"
 
 	"google.golang.org/grpc"
@@ -14,11 +13,17 @@ import (
 var (
 	serverPort = flag.String("port", "8000", "Port of server")
 	serverAddr = flag.String("addr", "localhost", "Address of server")
-	equation   = flag.String("equation", "1+1", "Equation to send")
+	equation   = flag.String("eq", "1+1", "Equation to send")
+	help       = flag.Bool("help", false, "Show this help")
 )
 
 func main() {
 	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -40,5 +45,5 @@ func main() {
 		log.Println("an error occurred while solving the equation", err)
 	}
 
-	fmt.Println(*equation, "=", result.Result)
+	log.Println(*equation, "=", result.Result)
 }
