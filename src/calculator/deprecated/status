@@ -1,0 +1,25 @@
+package queue
+
+import "fmt"
+
+type calculationStatus uint8
+
+// Status type messages to sent to the queue
+const (
+	Started calculationStatus = iota
+	Progress
+	Ended
+)
+
+func (qt calculationStatus) String() (string, error) {
+	switch qt {
+	case Started:
+		return "calc_started", nil
+	case Progress:
+		return "calc_progress", nil
+	case Ended:
+		return "calc_ended", nil
+	default:
+		return "", fmt.Errorf("failed to parse unknown type: %v", qt)
+	}
+}

@@ -1,0 +1,20 @@
+package queue
+
+import "fmt"
+
+type QueueTopic uint8
+
+// Topics used to publish to the queue.
+const (
+	CalculationStatus QueueTopic = iota
+)
+
+func (qt QueueTopic) String() (string, error) {
+	switch qt {
+	case TopicCalculationStatus:
+		return "calculation_status", nil
+	default:
+		return "", fmt.Errorf("failed to parse unknown type: %v", qt)
+	}
+}
+

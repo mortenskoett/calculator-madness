@@ -2,11 +2,10 @@ package main
 
 import (
 	"calculator/pkg/calc"
+	"calculator/pkg/queue"
 	"flag"
 	"log"
 	"os"
-
-	"github.com/nsqio/go-nsq"
 )
 
 var (
@@ -23,28 +22,28 @@ func main() {
 		return
 	}
 
-	// Instantiate the NSQ producer.
-	nsqConfig := nsq.NewConfig()
-	producer, err := nsq.NewProducer(*nsqAddr, nsqConfig)
+	// Create queue handler
+	producer,err := queue.NewNSQProducer(*nsqAddr)
 	if err != nil {
-		log.Fatal("failed to create nsq producer: ", err)
-	}
-
-	log.Println("nsq producer client created successfully")
-
-	messageBody := []byte("hello world")
-	topicName := "morten-topic"
-
-	// Synchronously publish a single message to the specified topic. Messages can also be sent asynchronously and/or in batches.
-	err = producer.Publish(topicName, messageBody)
-	if err != nil {
-		log.Fatal("failed to publish to nsq: ", err)
+		log.Fatal("failed to create NSQ producer: ", err)
 	}
 	defer producer.Stop()
 
-	// // Start serving GRPC endpoint
+	log.Println("nsq producer client created OK")
+
+	// messageBody := []byte("hello world")
+	// topicName := "morten-topic"
+
+	// err = producer.Publish(queue.NewCalculationStatusMessage{})
+	// if err != nil {
+		// log.Fatal("failed to publish to nsq: ", err)
+	// }
+
+	// Create GRPC endpoint
 	serverConfig := calc.CalcServerConfig{Port: *calcServerPort}
-	calcServer, err := calc.NewGRPCServer(serverConfig)
+	calcServer, err := calc.NewGRPCServer(serverConfig, producer)
+	// TODO: Create server. Then give to calc service ish. Move/register grpc request handles on the
+	// server here
 	if err != nil {
 		log.Fatalf("failed to create calc server: %v", err)
 	}
