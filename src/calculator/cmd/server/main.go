@@ -1,49 +1,20 @@
 package main
 
 import (
-	"calculator/api/pb"
 	"calculator/pkg/calc"
-	"context"
-	"fmt"
 	"log"
-	"net"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 )
-
-// calculationServer implements CalculationServiceServer interface
-type calculationServer struct {
-	pb.UnimplementedCalculationServiceServer // for forward compat
-}
-
-func (s *calculationServer) Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	eq := calc.Equation{Value: calculationRequest.Equation}
-	result, err := calc.Solve(eq)
-	if err != nil {
-		return nil, fmt.Errorf("failed to solve equation: %w", err)
-	}
-	return &pb.RunCalculationResponse{
-		Result: result,
-	}, nil
-}
 
 func main() {
 	log.Println("starting calculator GRPC protobuf service")
-	listener, err := net.Listen("tcp", ":8000")
+
+	serverConfig := calc.CalcServerConfig{Address: ":8000"}
+	calcServer, err := calc.NewGRPCServer(serverConfig)
 	if err != nil {
-		log.Fatalf("failed to create listener: %v", err)
+		log.Fatalf("failed to create calc server: %v", err)
 	}
 
-	server := grpc.NewServer()
-	pb.RegisterCalculationServiceServer(server, &calculationServer{})
-
-	// Setup reflection to be able to work with grpcurl
-	reflection.Register(server)
-
-	log.Println("serving at :8000")
-
-	if err := server.Serve(listener); err != nil {
+	if err := calcServer.Serve(); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
 }

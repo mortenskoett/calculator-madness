@@ -1,5 +1,3 @@
-PROTO_DIR := protos
-
 .DEFAULT_GOAL := help
 
 help:

@@ -1,5 +1,4 @@
 PROTOS_DIR := ../../protos
-GO_MODULE := "api/bla/pb"
 
 .DEFAULT_GOAL := help
 
