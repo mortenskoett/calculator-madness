@@ -10,7 +10,9 @@ COPY go.sum ./
 
 RUN go mod download
 
-COPY . .
+COPY ./api ./api
+COPY ./pkg ./pkg
+COPY ./cmd/server ./cmd/server
 
 RUN GOOS=linux CGO_ENABLED=0 go build cmd/server/main.go
 

@@ -18,7 +18,7 @@ type CalculationServer interface {
 }
 
 type CalcServerConfig struct {
-	Address string
+	Port string
 }
 
 // calculationServer implements CalculationServiceServer interface
@@ -29,7 +29,7 @@ type calculationServer struct {
 }
 
 func NewGRPCServer(config CalcServerConfig) (CalculationServer, error) {
-	listener, err := net.Listen("tcp", ":8000")
+	listener, err := net.Listen("tcp", config.Port)
 	if err != nil {
 		log.Fatalf("failed to create listener: %v", err)
 	}
