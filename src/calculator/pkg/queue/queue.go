@@ -2,6 +2,7 @@ package queue
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/nsqio/go-nsq"
 )
@@ -26,7 +27,12 @@ func NewNSQProducer(serverAddr string) (QueueProducer, error) {
 }
 
 func (n *nsqProducer) Publish(msg Message) error {
-	return n.producer.Publish(msg.Topic(), msg.Message())
+	err := n.producer.Publish(msg.Topic(), msg.Message())
+	if err != nil {
+		return err
+	}
+	log.Println("Sent message to queue on topic", msg.Topic())
+	return nil
 }
 
 func (n *nsqProducer) Stop() {

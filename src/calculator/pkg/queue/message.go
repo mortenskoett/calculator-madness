@@ -30,6 +30,7 @@ type calcStartedMessage struct {
 }
 
 func NewCalcStartedMessage() (Message, error) {
+	// Anonymous struct containing fields that is send to the queue
 	tmp := struct {
 		time      time.Time
 		messageID string

@@ -60,11 +60,17 @@ func (s *calculationServer) Serve() error {
 /* GRPC Protobuf end points */
 
 func (s *calculationServer) Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	log.Println("Run called with:", calculationRequest.Equation)
+	log.Println("Request received to Run equation", calculationRequest.Equation)
 
-	s.QueueProducer.Publish(queue.NewCalcStartedMessage())
+	msg, err := queue.NewCalcStartedMessage()
+	if err != nil {
+		return nil, err
+	}
+
+	s.QueueProducer.Publish(msg)
 
 	eq := Equation{Value: calculationRequest.Equation}
+
 	result, err := Solve(eq)
 	if err != nil {
 		return nil, fmt.Errorf("failed to solve equation: %w", err)
