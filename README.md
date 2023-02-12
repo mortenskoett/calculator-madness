@@ -21,4 +21,5 @@ grpcurl --plaintext localhost:8000 list
 ### Dev iterations
 **OK** grpc/protobuf service for calculation + client calling service
 **OK** everything in docker + message broker to communicate indirectly with calculation service
-make calculation service post progress messages to the message broker
+**OK** make calculation service post progress messages to the message broker
+create ui facing http server that consumes queue messages from ui

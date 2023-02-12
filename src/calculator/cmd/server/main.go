@@ -31,19 +31,11 @@ func main() {
 
 	log.Println("nsq producer client created OK")
 
-	// messageBody := []byte("hello world")
-	// topicName := "morten-topic"
-
-	// err = producer.Publish(queue.NewCalculationStatusMessage{})
-	// if err != nil {
-		// log.Fatal("failed to publish to nsq: ", err)
-	// }
-
 	// Create GRPC endpoint
 	serverConfig := calc.CalcServerConfig{Port: *calcServerPort}
 	calcServer, err := calc.NewGRPCServer(serverConfig, producer)
-	// TODO: Create server. Then give to calc service ish. Move/register grpc request handles on the
-	// server here
+	// TODO: Separate creation of server from biz logic. E.g. give server to calc service ish.
+	// Move/register grpc request handles on the server here
 	if err != nil {
 		log.Fatalf("failed to create calc server: %v", err)
 	}

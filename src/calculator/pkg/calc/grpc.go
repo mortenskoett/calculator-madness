@@ -45,6 +45,7 @@ func NewGRPCServer(config CalcServerConfig, producer queue.QueueProducer) (Calcu
 		QueueProducer:                         producer,
 	}
 
+	// Register endpoint
 	pb.RegisterCalculationServiceServer(server, calcServer)
 
 	// Setup reflection to be able to work with grpcurl
