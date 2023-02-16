@@ -1,22 +1,11 @@
 package queue
 
 import (
+	nsqapi "calculator/shared/nsq"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
-)
-
-// Topic types passed to the queue.
-const (
-	CalcStatusTopic string = "calc_status"
-)
-
-// Message type passed to the queue.
-const (
-	CalcStartedMsg  string = "calc_status_started"
-	CalcProgressMsg string = "calc_status_progress"
-	CalcEndedMsg    string = "calc_status_ended"
 )
 
 type Message interface {
@@ -30,6 +19,7 @@ type calcStartedMessage struct {
 	payload   []byte
 }
 
+
 func NewCalcStartedMessage() (Message, error) {
 	// Anonymous struct containing fields that is send to the queue
 	tmp := struct {
@@ -37,7 +27,7 @@ func NewCalcStartedMessage() (Message, error) {
 		MessageID string
 	}{
 		Time:      time.Now().String(),
-		MessageID: CalcStartedMsg,
+		MessageID: nsqapi.CalcStartedMsg,
 	}
 
 	bytes, err := toByteSlice(tmp)
@@ -49,7 +39,7 @@ func NewCalcStartedMessage() (Message, error) {
 
 	mesg := calcStartedMessage{
 		time:      time.Now(),
-		messageID: CalcStartedMsg,
+		messageID: nsqapi.CalcStartedMsg,
 		payload:   bytes,
 	}
 
@@ -57,7 +47,7 @@ func NewCalcStartedMessage() (Message, error) {
 }
 
 func (m *calcStartedMessage) Topic() string {
-	return CalcStatusTopic
+	return nsqapi.CalcStatusTopic
 }
 
 func (m *calcStartedMessage) Message() []byte {

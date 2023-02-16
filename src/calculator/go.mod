@@ -2,6 +2,10 @@ module calculator
 
 go 1.20
 
+require calculator/shared/nsq v0.0.1
+
+replace calculator/shared/nsq => ../shared/go/nsq
+
 require (
 	google.golang.org/grpc v1.52.3
 	google.golang.org/protobuf v1.28.1

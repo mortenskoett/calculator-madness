@@ -16,6 +16,7 @@ type nsqProducer struct {
 	producer *nsq.Producer
 }
 
+// Creates a new NSQ producer client
 func NewNSQProducer(serverAddr string) (QueueProducer, error) {
 	nsqConfig := nsq.NewConfig()
 	producer, err := nsq.NewProducer(serverAddr, nsqConfig)
