@@ -3,6 +3,7 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -32,11 +33,11 @@ type calcStartedMessage struct {
 func NewCalcStartedMessage() (Message, error) {
 	// Anonymous struct containing fields that is send to the queue
 	tmp := struct {
-		time      time.Time
-		messageID string
+		Time      string
+		MessageID string
 	}{
-		time:      time.Now(),
-		messageID: CalcStartedMsg,
+		Time:      time.Now().String(),
+		MessageID: CalcStartedMsg,
 	}
 
 	bytes, err := toByteSlice(tmp)
@@ -44,21 +45,27 @@ func NewCalcStartedMessage() (Message, error) {
 		return nil, fmt.Errorf("failed to convert message to bytes: %v", err)
 	}
 
-	return calcStartedMessage{
+	log.Println(bytes)
+
+	mesg := calcStartedMessage{
 		time:      time.Now(),
 		messageID: CalcStartedMsg,
 		payload:   bytes,
-	}, nil
+	}
+
+	return &mesg, nil
 }
 
-func (m calcStartedMessage) Topic() string {
+func (m *calcStartedMessage) Topic() string {
 	return CalcStatusTopic
 }
 
-func (m calcStartedMessage) Message() []byte {
+func (m *calcStartedMessage) Message() []byte {
 	return m.payload
 }
 
 func toByteSlice(v any) ([]byte, error) {
-	return json.Marshal(v)
+	res, err := json.Marshal(v)
+	log.Println("to bytes", res, string(res))
+	return res, err
 }

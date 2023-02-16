@@ -21,7 +21,7 @@ services:
       - nsqlookupd
     ports:
       - "4171:4171"
-  calculator-server:
+  calculator:
     build:
       context: ./src/calculator/
       dockerfile: Dockerfile.server
@@ -33,3 +33,11 @@ services:
     environment:
       SERVER_PORT: ":8000"
       NSQ_ADDR: "nsqd:4150"
+  viewer-cli:
+    build:
+      context: ./src/viewer/
+      dockerfile: Dockerfile.cli
+    depends_on:
+      - calculator
+    environment:
+      NSQLOOKUPD_ADDR: "nsqlookupd:4161"

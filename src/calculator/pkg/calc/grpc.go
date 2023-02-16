@@ -68,7 +68,10 @@ func (s *calculationServer) Run(context context.Context, calculationRequest *pb.
 		return nil, err
 	}
 
-	s.QueueProducer.Publish(msg)
+	err = s.QueueProducer.Publish(msg)
+	if err != nil {
+		return nil, err
+	}
 
 	eq := Equation{Value: calculationRequest.Equation}
 
