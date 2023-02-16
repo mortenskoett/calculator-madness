@@ -2,9 +2,9 @@ module calculator
 
 go 1.20
 
-require calculator/shared/nsq v0.0.1
+require shared/api/nsq v0.0.1
 
-replace calculator/shared/nsq => ../shared/go/nsq
+replace shared/api/nsq => ../shared/api/nsq
 
 require (
 	google.golang.org/grpc v1.52.3

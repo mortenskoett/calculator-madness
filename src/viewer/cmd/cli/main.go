@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	nsqapi "shared/api/nsq"
+
 	"github.com/nsqio/go-nsq"
 )
 
@@ -44,7 +46,7 @@ func (h *myMessageHandler) HandleMessage(m *nsq.Message) error {
 	log.Println("recieved message", m.Body, "on topic", CalcStatusQueue, "using channel", ServiceNameChannel)
 
 	// do whatever actual message processing is desired
-	var msg CalcStartedMessage
+	var msg nsqapi.
 	err := json.Unmarshal(m.Body, &msg)
 	if err != nil {
 		log.Println("failed to unmarshal the message body:", err)
