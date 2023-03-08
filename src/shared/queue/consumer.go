@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/nsqio/go-nsq"
+	"github.com/pkg/errors"
 )
 
 type NsqQueueConsumer struct {
@@ -20,11 +21,12 @@ type NsqQueueConsumer struct {
 
 // Create a new NSQ consumer that subcribes to the given service channel and consumes messages from
 // one or more topics. Handlers to consume topics must be added to it after instantiation.
-func NewNSQConsumer(nsqlookupdAddr, topic, channel string) *NsqQueueConsumer {
+func NewNSQConsumer(nsqlookupdAddr, topic, channel string) (*NsqQueueConsumer, error) {
+	log.Println("creating new nsq consumer")
 	config := nsq.NewConfig()
 	consumer, err := nsq.NewConsumer(topic, channel, config)
 	if err != nil {
-		log.Fatal(err)
+		return nil, errors.Wrap(err, "failed to create nsq consumer")
 	}
 
 	return &NsqQueueConsumer{
@@ -32,11 +34,12 @@ func NewNSQConsumer(nsqlookupdAddr, topic, channel string) *NsqQueueConsumer {
 		Channel:       channel,
 		nsqlookupAddr: nsqlookupdAddr,
 		consumer:      consumer,
-	}
+	}, nil
 }
 
 // Start listening for incoming messages on the set topic.
 func (c *NsqQueueConsumer) Start() {
+	log.Println("connecting to nsqlookupd")
 	// Use nsqlookupd to discover nsqd instances.
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
 	err := c.consumer.ConnectToNSQLookupd(c.nsqlookupAddr)

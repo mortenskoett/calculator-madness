@@ -8,7 +8,6 @@ WORKDIR /app
 COPY --from=calculator-shared-queue ./app ./
 
 WORKDIR /app/viewer
-
 COPY ./viewer/go.mod ./
 COPY ./viewer/go.sum ./
 

@@ -14,8 +14,6 @@ COPY ./shared/queue/*.go ./
 
 RUN go build
 
-RUN GOOS=linux CGO_ENABLED=0 go build
-
 ## Create smaller image
 FROM scratch as prod
 WORKDIR /app/shared/queue

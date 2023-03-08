@@ -1,6 +1,8 @@
+SHARED_QUEUE := "../shared/queue"
 .DEFAULT_GOAL := help
 
 build: ## Build everything
+	make build -C $(SHARED_QUEUE)
 	docker build -t viewer-cli -f Dockerfile.cli ../
 
 run-cli: ## Run the viewer cli

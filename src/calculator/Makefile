@@ -1,3 +1,4 @@
+SHARED_QUEUE := "../shared/queue"
 PROTOS_DIR := ../../protos
 
 .DEFAULT_GOAL := help
@@ -6,6 +7,7 @@ build-protos: ## Build protobuf Go stubs
 	protoc --proto_path=$(PROTOS_DIR) --go_out=api --go-grpc_out=api $(PROTOS_DIR)/*.proto
 
 build: ## Build everything
+	make build -C $(SHARED_QUEUE)
 	docker build -t calculator-server -f Dockerfile.server ../
 
 run: ## Run calculator server

@@ -26,8 +26,13 @@ func main() {
 	log.Println("starting calculator viewer CLI client")
 	flag.Parse()
 
-	consumer := queue.NewNSQConsumer(*nsqlookupdAddr, queue.CalcStatusTopic, ServiceNameChannel)
+	consumer, err := queue.NewNSQConsumer(*nsqlookupdAddr, queue.CalcStatusTopic, ServiceNameChannel)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	consumer.AddCalcStartedHandler(calcStartedHandler)
+
 	defer consumer.Stop()
 }
 
