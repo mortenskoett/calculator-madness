@@ -3,6 +3,7 @@ package queue
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/nsqio/go-nsq"
 )
@@ -36,6 +37,9 @@ func (n *NsqQueueProducer) Publish(msg Enqueable) error {
 	if err != nil {
 		return err
 	}
+
+	log.Println("sent message to queue on topic:", msg.topic())
+
 	return nil
 }
 

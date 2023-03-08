@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ServiceNameChannel string = "viewer"
+ServiceNameChannel string = "viewer"
 )
 
 var (
@@ -16,6 +16,7 @@ var (
 )
 
 func calcStartedHandler(msg *queue.CalcStartedMessage, err error) error {
+	log.Println("Hello from the viewer", msg)
 	if err != nil {
 		return err
 	}
@@ -23,7 +24,7 @@ func calcStartedHandler(msg *queue.CalcStartedMessage, err error) error {
 }
 
 func main() {
-	log.Println("starting calculator viewer CLI client")
+	log.Println("starting calculator viewer cli client")
 	flag.Parse()
 
 	consumer, err := queue.NewNSQConsumer(*nsqlookupdAddr, queue.CalcStatusTopic, ServiceNameChannel)
@@ -32,7 +33,7 @@ func main() {
 	}
 
 	consumer.AddCalcStartedHandler(calcStartedHandler)
-
+	consumer.Start()
 	defer consumer.Stop()
 }
 

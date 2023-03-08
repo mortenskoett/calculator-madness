@@ -42,6 +42,7 @@ services:
       context: ./src
       dockerfile: viewer/Dockerfile.cli
     depends_on:
-      - calculator
+      - nsqd
+      - nsqlookupd
     environment:
       NSQLOOKUPD_ADDR: "nsqlookupd:4161"

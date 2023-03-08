@@ -6,12 +6,13 @@ VIEW_SERV := "./src/viewer"
 
 build: ## Build everything
 	make build -C $(SHARED_QUEUE)
-	make build -C $(CALC_SERV)
-	make build -C $(VIEW_SERV)
+	docker compose build
 
-run: ## Run everyting in docker compose
-	docker compose down
+up: ## Run everything in docker compose
 	docker compose up
+
+down: ## Take down everything in docker compose
+	docker compose down
 
 help:
 	@grep -F -h "##" $(MAKEFILE_LIST) | grep -F -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
