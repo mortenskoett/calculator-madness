@@ -1,4 +1,4 @@
-version: '3'
+version: '3.9'
 services:
   nsqlookupd:
     image: nsqio/nsq
@@ -6,6 +6,7 @@ services:
     ports:
       - "4160:4160"
       - "4161:4161"
+
   nsqd:
     image: nsqio/nsq
     command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
@@ -14,6 +15,7 @@ services:
     ports:
       - "4150:4150"
       - "4151:4151"
+
   nsqadmin:
     image: nsqio/nsq
     command: /nsqadmin --lookupd-http-address=nsqlookupd:4161
@@ -21,10 +23,11 @@ services:
       - nsqlookupd
     ports:
       - "4171:4171"
+
   calculator:
     build:
-      context: ./src/calculator/
-      dockerfile: Dockerfile.server
+      context: ./src
+      dockerfile: calculator/Dockerfile.server
     depends_on:
       - nsqd
       - nsqlookupd
@@ -33,10 +36,11 @@ services:
     environment:
       SERVER_PORT: ":8000"
       NSQ_ADDR: "nsqd:4150"
+
   viewer-cli:
     build:
-      context: ./src/viewer/
-      dockerfile: Dockerfile.cli
+      context: ./src
+      dockerfile: viewer/Dockerfile.cli
     depends_on:
       - calculator
     environment:

@@ -7,47 +7,39 @@ import (
 	"github.com/nsqio/go-nsq"
 )
 
-type QueueProducer interface {
-	Publish(Enqueable) error
-	Stop()
+// Interface for types that can be enqueued.
+type Enqueable interface {
+	topic() string
 }
 
-type nsqProducer struct {
+type NsqQueueProducer struct {
 	producer *nsq.Producer
 }
 
 // Creates a new NSQ producer client
-func NewNSQProducer(serverAddr string) (QueueProducer, error) {
+func NewNSQProducer(serverAddr string) (*NsqQueueProducer, error) {
 	nsqConfig := nsq.NewConfig()
 	producer, err := nsq.NewProducer(serverAddr, nsqConfig)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create nsq producer: %w", err)
 	}
-
-	return &nsqProducer{producer: producer}, nil
+	return &NsqQueueProducer{producer: producer}, nil
 }
 
-// type MMessage struct {
-// 	Name      string
-// 	Content   string
-// 	Timestamp string
-// }
-
-func (n *nsqProducer) Publish(msg Enqueable) error {
+func (n *NsqQueueProducer) Publish(msg Enqueable) error {
 	bytes, err := toByteSlice(msg)
 	if err != nil {
 		return err
 	}
 
-	err = n.producer.Publish(msg.Topic(), bytes)
+	err = n.producer.Publish(msg.topic(), bytes)
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 
-func (n *nsqProducer) Stop() {
+func (n *NsqQueueProducer) Stop() {
 	n.producer.Stop()
 }
 

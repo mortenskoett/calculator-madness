@@ -5,6 +5,5 @@ type Equation struct {
 }
 
 func Solve(eq Equation) (float64, error) {
-	// TODO: Dummy return value
 	return float64(len(eq.Value)), nil
 }

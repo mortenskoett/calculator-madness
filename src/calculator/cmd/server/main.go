@@ -2,10 +2,10 @@ package main
 
 import (
 	"calculator/pkg/calc"
-	"calculator/pkg/queue"
 	"flag"
 	"log"
 	"os"
+	"shared/queue"
 )
 
 var (

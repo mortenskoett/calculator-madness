@@ -1,0 +1,22 @@
+# syntax=docker/dockerfile:1.4
+
+## Build/check code
+FROM golang:1.20.1-buster AS build
+
+WORKDIR /app/shared/queue
+
+COPY ./shared/queue/go.mod ./
+COPY ./shared/queue/go.sum ./
+
+RUN go mod download
+
+COPY ./shared/queue/*.go ./
+
+RUN go build
+
+RUN GOOS=linux CGO_ENABLED=0 go build
+
+## Create smaller image
+FROM scratch as prod
+WORKDIR /app/shared/queue
+COPY --from=build /app/shared/queue/ ./

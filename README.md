@@ -22,4 +22,5 @@ grpcurl --plaintext localhost:8000 list
 **OK** grpc/protobuf service for calculation + client calling service
 **OK** everything in docker + message broker to communicate indirectly with calculation service
 **OK** make calculation service post progress messages to the message broker
+create encapsulated way of producing/consuming from nsq
 create user facing http server that consumes queue messages from ui and sends

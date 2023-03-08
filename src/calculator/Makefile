@@ -5,10 +5,10 @@ PROTOS_DIR := ../../protos
 build-protos: ## Build protobuf Go stubs
 	protoc --proto_path=$(PROTOS_DIR) --go_out=api --go-grpc_out=api $(PROTOS_DIR)/*.proto
 
-build-calculator-server: ## Build calculator server
-	docker build -t calculator-server -f Dockerfile.server .
+build: ## Build everything
+	docker build -t calculator-server -f Dockerfile.server ../
 
-start-calculator-server: ## Start calculator server
+run: ## Run calculator server
 	docker run -p 8000:8000 calculator-server
 
 help:

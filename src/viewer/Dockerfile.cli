@@ -1,25 +1,30 @@
-# syntax=docker/dockerfile:1
+# syntax=docker/dockerfile:1.4
 
 ## Build
-FROM golang:1.18-buster AS build
+FROM golang:1.20.1-buster AS build
 
+### Copy over shared code
 WORKDIR /app
+COPY --from=calculator-shared-queue ./app ./
 
-COPY go.mod ./
-COPY go.sum ./
+WORKDIR /app/viewer
+
+COPY ./viewer/go.mod ./
+COPY ./viewer/go.sum ./
 
 RUN go mod download
 
-COPY ./pkg ./pkg
-COPY ./cmd/cli ./cmd/cli
+COPY ./viewer/cmd/cli ./cmd/cli
 
 RUN GOOS=linux CGO_ENABLED=0 go build cmd/cli/main.go
 
 ## Prod
-FROM golang:alpine AS prod
+FROM gcr.io/distroless/static AS prod
+LABEL maintainer="mortenskoett"
+USER nonroot:nonroot
 
 WORKDIR /
 
-COPY --from=build /app/main ./
+COPY --from=build /app/viewer/main ./
 
 ENTRYPOINT ["./main"]
