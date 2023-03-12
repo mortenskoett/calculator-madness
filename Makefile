@@ -8,7 +8,7 @@ build: ## Build everything
 	make build -C $(SHARED_QUEUE)
 	docker compose build
 
-run: build ## Run everything in docker compose
+run: build ## Build and run everything in docker compose
 	docker compose up
 
 up: ## Up docker compose services

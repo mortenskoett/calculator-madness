@@ -9,7 +9,7 @@ services:
 
   nsqd:
     image: nsqio/nsq
-    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 #--broadcast-address=127.0.0.1 #example for debugging locally
     depends_on:
       - nsqlookupd
     ports:
