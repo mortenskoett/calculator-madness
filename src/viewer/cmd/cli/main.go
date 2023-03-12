@@ -16,7 +16,7 @@ var (
 )
 
 func calcStartedHandler(msg *queue.CalcStartedMessage, err error) error {
-	log.Println("Hello from the viewer", msg)
+	log.Printf("Hello from the viewer: time: %+v, msgID: %+v\n", msg.CreatedTime, msg.MessageID)
 	if err != nil {
 		return err
 	}

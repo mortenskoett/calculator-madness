@@ -6,24 +6,24 @@ import (
 
 // Additional metadata of the message
 type MessageMetadata struct {
-	Time string
+	CreatedTime time.Time
 }
 
 // Specific message designated a calculation has started
 type CalcStartedMessage struct {
-	MessageMetadata
+	*MessageMetadata
 	MessageID string
 }
 
 func newMessageMetadata() *MessageMetadata {
 	return &MessageMetadata{
-		Time: time.Now().String(),
+		CreatedTime: time.Now(),
 	}
 }
 
 func NewCalcStartedMessage() (*CalcStartedMessage, error) {
 	mesg := CalcStartedMessage{
-		MessageMetadata: MessageMetadata{},
+		MessageMetadata: newMessageMetadata(),
 		MessageID:       CalcStartedMsg,
 	}
 
