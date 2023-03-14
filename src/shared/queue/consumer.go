@@ -59,29 +59,40 @@ func (c *NsqQueueConsumer) Stop() {
 	c.consumer.Stop()
 }
 
-// Contain
-type callbackHolder[T Enqueable] struct {
-	callback func(*T, error) error
+// Callback types
+type callback[T Enqueable] func(*T, error) error
+type CalcStartedCallback func(*CalcStartedMessage, error) error
+type CalcProgressCallback func(*CalcProgressMessage, error) error
+type CalcEndedCallback func(*CalcEndedMessage, error) error
+
+/* Add handlers of a specific message types. Panics if called after Start(). */
+
+func (c *NsqQueueConsumer) AddCalcStartedHandler(fn CalcStartedCallback) {
+	addCallback(fn, c) // Necessary workaround to use generics with method call on c.
 }
 
-type CalcStartedCallback func(*CalcStartedMessage, error) error
+func (c *NsqQueueConsumer) AddCalcProgressHandler(fn CalcProgressCallback) {
+	addCallback(fn, c)
+}
 
-// Add handler callback of a specific message type. Panics if called after Start().
-func (c *NsqQueueConsumer) AddCalcStartedHandler(fn CalcStartedCallback) {
+func (c *NsqQueueConsumer) AddCalcEndedHandler(fn CalcEndedCallback) {
+	addCallback(fn, c)
+}
+
+/* Code to handle each incoming message */
+
+func addCallback[T Enqueable](fn func(*T, error) error, c *NsqQueueConsumer) {
 	c.consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
-		msgHandler := callbackHolder[CalcStartedMessage]{
-			callback: fn,
-		}
-		return handleCallback(m, msgHandler)
+		return attachCallback(m, fn)
 	}))
 }
 
-func handleCallback[T Enqueable](m *nsq.Message, handler callbackHolder[T]) error {
+func attachCallback[T Enqueable](m *nsq.Message, callback callback[T]) error {
 	msg, err := unmarshalMessage[T](m)
 	if err != nil {
-		return handler.callback(nil, err)
+		return callback(nil, err)
 	}
-	return handler.callback(msg, nil)
+	return callback(msg, nil)
 }
 
 // Unmarshal a received nsq message.

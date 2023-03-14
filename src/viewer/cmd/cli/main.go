@@ -8,7 +8,7 @@ import (
 )
 
 const (
-ServiceNameChannel string = "viewer"
+	ServiceNameChannel string = "viewer"
 )
 
 var (
@@ -16,7 +16,38 @@ var (
 )
 
 func calcStartedHandler(msg *queue.CalcStartedMessage, err error) error {
-	log.Printf("Hello from the viewer: time: %+v, msgID: %+v\n", msg.CreatedTime, msg.MessageID)
+	log.Printf("Calc started: calcID: %+v, msgID: %+v, time: %+v\n",
+		msg.CalculationID,
+		msg.MessageID,
+		msg.CreatedTime,
+	)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func calcProgressHandler(msg *queue.CalcProgressMessage, err error) error {
+	log.Printf("Calc progress: calcID: %+v, msgID: %+v, time: %+v\n",
+		msg.CalculationID,
+		msg.MessageID,
+		msg.CreatedTime,
+	)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func calcEndedHandler(msg *queue.CalcEndedMessage, err error) error {
+	log.Printf("Calc ended: calcID: %+v, msgID: %+v, time: %+v\n",
+		msg.CalculationID,
+		msg.MessageID,
+		msg.CreatedTime,
+	)
+
 	if err != nil {
 		return err
 	}
@@ -33,6 +64,8 @@ func main() {
 	}
 
 	consumer.AddCalcStartedHandler(calcStartedHandler)
+	consumer.AddCalcProgressHandler(calcProgressHandler)
+	consumer.AddCalcEndedHandler(calcEndedHandler)
 	consumer.Start()
 	defer consumer.Stop()
 }
@@ -44,4 +77,3 @@ func getEnvVarOrDefault(envName string, def string) string {
 	}
 	return envvar
 }
-

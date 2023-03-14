@@ -7,10 +7,10 @@ const (
 	CalcStatusTopic string = "calc_status"
 )
 
-// Message type passed to the queue.
+// Calculation message IDs
 const (
-	CalcStartedMsg  string = "calc_status_started"
-	CalcProgressMsg string = "calc_status_progress"
-	CalcEndedMsg    string = "calc_status_ended"
+	CalcStartedID  string = "calc_status_started"
+	CalcProgressID string = "calc_status_progress"
+	CalcEndedID    string = "calc_status_ended"
 )
 

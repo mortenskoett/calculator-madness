@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"shared/queue"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
@@ -69,12 +70,12 @@ func (s *CalculationGRPCServer) Serve() error {
 func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
 	log.Println("Request received to Run equation", calculationRequest.Equation)
 
-	msg, err := queue.NewCalcStartedMessage()
+	startMsg, err := queue.NewCalcStartedMessage()
 	if err != nil {
 		return nil, err
 	}
 
-	err = s.queueProducer.Publish(msg)
+	err = s.queueProducer.Publish(startMsg)
 	if err != nil {
 		return nil, err
 	}
@@ -82,9 +83,37 @@ func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest 
 	eq := Equation{Value: calculationRequest.Equation}
 
 	result, err := Solve(eq)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to solve equation: %w", err)
 	}
+
+	// Artifical work
+	time.Sleep(time.Duration(result) * time.Second)
+
+	progMsg, err := queue.NewCalcProgressMessage(startMsg.CalculationID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.queueProducer.Publish(progMsg)
+	if err != nil {
+		return nil, err
+	}
+
+	// More artifical work
+	time.Sleep(2 * time.Second)
+
+	endMsg, err := queue.NewCalcEndedMessage(startMsg.CalculationID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.queueProducer.Publish(endMsg)
+	if err != nil {
+		return nil, err
+	}
+
 	return &pb.RunCalculationResponse{
 		Result: result,
 	}, nil
