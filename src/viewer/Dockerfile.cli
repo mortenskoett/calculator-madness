@@ -14,6 +14,7 @@ COPY ./viewer/go.sum ./
 RUN go mod download
 
 COPY ./viewer/cmd/cli ./cmd/cli
+COPY ./viewer/pkg ./pkg
 
 RUN GOOS=linux CGO_ENABLED=0 go build cmd/cli/main.go
 
