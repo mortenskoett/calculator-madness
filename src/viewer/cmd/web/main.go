@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"viewer/pkg/env"
+	"viewer/pkg/site"
 )
 
 const (
@@ -24,14 +25,21 @@ func main() {
 	flag.Parse()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", indexHandler)
+	mux.HandleFunc("/", handleIndex())
 	// mux.HandleFunc("/socket", socketHandler)
 
 	http.ListenAndServe(":"+*port, mux)
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("<h1>Hello Anne Dorte!</h1>"))
+func handleIndex() http.HandlerFunc {
+	param := site.StatusPageParam{
+		Title: "Status viewer",
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		log.Println("index handler called")
+		site.StatusPage(w, param)
+	}
 }
 
 // func socketHandler(w http.ResponseWriter, r *http.Request) {
