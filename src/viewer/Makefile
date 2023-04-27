@@ -8,5 +8,8 @@ build: ## Build everything
 run: ## Run the viewer cli
 	docker run viewer-cli
 
+rerun-web: ## Rerun web app on changes
+	reflex -s -- sh -c 'go run ./cmd/web'
+
 help:
 	@grep -F -h "##" $(MAKEFILE_LIST) | grep -F -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'

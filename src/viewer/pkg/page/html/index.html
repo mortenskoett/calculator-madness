@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <!-- <title>{{.Title}}</title> -->
+    <!-- <link rel="stylesheet" href="{{.StylesheetURL}}" /> -->
+    <link rel="stylesheet" href="/home/mskk/repos/go/calculator/src/viewer/public/style.css"/>
+  </head>
+
+  <body>
+    <div class="navbar">
+      <div class="left">
+        <a class="active" href="/">Calculation Status</a>
+      </div>
+
+      <div class="center">
+        <input id="calcin" type="text" placeholder="Input equation..." onkeypress="enterKeyHandler(event, 'calcbtn')">
+        <button id="calcbtn" type="submit" onClick="runCalculation(calcin.value)">Go!</button>
+      </div>
+
+      <div class="right">
+        <p>there</p>
+      </div>
+    </div>
+
+    <!-- Templated content -->
+    <!-- {{block "content" .}}{{end}} -->
+  </body>
+
+  <script>
+  function enterKeyHandler(e, button) {
+      e = e || window.event;
+      if (e.key == 'Enter') {
+          document.getElementById(button).click();
+      }
+  }
+
+  function runCalculation(msg) {
+    alert(msg);
+  }
+
+  </script>
+
+</html>
+

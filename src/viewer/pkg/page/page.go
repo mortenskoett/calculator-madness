@@ -1,4 +1,4 @@
-package site
+package page
 
 import (
 	"embed"
@@ -20,11 +20,16 @@ var (
 	status = parse("html/status.html")
 )
 
-type StatusPageParam struct {
+type IndexParams struct {
+	StylesheetURL string
+}
+
+type StatusParams struct {
+	IndexParams
 	Title string
 }
 
-func StatusPage(w io.Writer, p StatusPageParam) error {
+func Status(w io.Writer, p StatusParams) error {
 	return status.Execute(w, p)
 }
 

@@ -1,20 +1,20 @@
-package site_test
+package page_test
 
 import (
 	"bytes"
 	"testing"
-	"viewer/pkg/site"
+	"viewer/pkg/page"
 )
 
-func TestStatusPage_Works(t *testing.T) {
+func Test_StatusPage_not_empty(t *testing.T) {
 
-	param := site.StatusPageParam{
+	param := page.StatusParams{
 		Title: "Calculation status",
 	}
 
     var b bytes.Buffer
 
-	err := site.StatusPage(&b, param)
+	err := page.Status(&b, param)
 	if err != nil {
 		t.Fatalf("no error should happen here: %+v", err)
 	}
