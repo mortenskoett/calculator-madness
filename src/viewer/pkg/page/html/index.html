@@ -4,13 +4,19 @@
   <head>
     <meta charset="UTF-8" />
     <title>{{.Title}}</title>
-    <link rel="stylesheet" href="{{.StylesheetURL}}" />
+
+    <!-- Load all stylesheets used in templating -->
+    {{range .IndexParams.StylesheetURL}}
+      <link rel="stylesheet" href="{{.}}" />
+    {{end}}
+
     <!-- <link rel="stylesheet" href="/home/mskk/repos/go/calculator/src/viewer/public/indexstyle.css"/> -->
   </head>
 
   <body>
     <div class="navbar">
       <div class="left">
+        <img src="/public/images/calculator.ico" alt="Cog icon" width="40" height="40">
         <a class="active" href="/">Calculation Status</a>
       </div>
 

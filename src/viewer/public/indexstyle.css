@@ -22,13 +22,22 @@
   background-color: #e9e9e9;
   font-size: var(--big-font);
 }
-.navbar a {
+
+.navbar .left {
   float: left;
-  display: block;
+  display: flex;
+  vertical-align: middle;
+}
+
+.navbar .left a {
   color: black;
   padding: 14px var(--left-padding);
   text-decoration: none;
   font-size: var(--big-font);
+}
+
+.navbar .left img {
+  margin: 3px 0px 1px 1px;
 }
 
 .navbar .center input[type=text] {

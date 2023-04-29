@@ -1,5 +1,40 @@
 {{define "content"}}
-<p>
-    This is the status page.
-</p>
+
+<div class="calc-wrapper">
+    <div class="ongoing">
+        <h5> Ongoing </h5>
+        <ul>
+            {{range .Calculations}}
+                {{if (lt .Progress.Current .Progress.Outof)}}
+                    <div class="elem">
+                        <li>
+                            {{.Equation}} = {{.Result}}
+                            <img src="/public/images/cog.png" alt="Cog icon" width="20" height="20">
+                            <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress>
+                        </li>
+                    </div>
+                {{end}}
+            {{end}}
+        </ul>
+    </div>
+
+    <div class="finished">
+        <h5> Finished </h5>
+        <ul>
+            {{range .Calculations}}
+                {{if (ge .Progress.Current .Progress.Outof)}}
+                    <div class="elem">
+                        <li>
+                            {{.Equation}} = {{.Result}}
+                            <img src="/public/images/done.png" alt="Done icon" width="25" height="25">
+                            <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress>
+                        </li>
+                    </div>
+                {{end}}
+            {{end}}
+        </ul>
+    </div>
+    <div></div>
+</div>
+
 {{end}}
