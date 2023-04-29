@@ -13,5 +13,41 @@ body {
 
 .calc-wrapper .elem {
   background-color: white;
+  padding: 8px;
+  margin: 8px 20px 8px 20px;
+  /* border-style:solid; */
+  /* border-color: gray; */
+  /* border-radius: 10px; */
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, .1);
+  display:grid;
+  grid-template-columns: auto auto;
+  vertical-align: middle;
 }
 
+.calc-wrapper .result {
+  display:flex;
+}
+
+.calc-wrapper .progress {
+  display:flex;
+  margin-left:auto;
+}
+
+.elem img {
+  display:flex;
+  margin: 0 10px 0 0;
+}
+
+.ongoing img {
+  animation: rotation 12s infinite linear;
+}
+
+/* To handle rotation */
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}
