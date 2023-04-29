@@ -24,6 +24,10 @@ body {
   vertical-align: middle;
 }
 
+h5 {
+  margin: 10px;
+}
+
 .calc-wrapper .result {
   display:flex;
 }

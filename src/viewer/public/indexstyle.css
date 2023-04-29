@@ -21,18 +21,21 @@
   grid-template-columns: auto auto auto;
   background-color: #e9e9e9;
   font-size: var(--big-font);
-  margin: 3px 0px 3px 1px;
+}
+
+.navbar img {
+  margin: 5px;
 }
 
 .navbar .left {
-  float: left;
   display: flex;
-  vertical-align: middle;
+  align-items: center;
+  float: left;
 }
 
 .navbar .left a {
   color: black;
-  padding: 14px var(--left-padding);
+  padding: 0 10px 0 0;
   text-decoration: none;
   font-size: var(--big-font);
 }
