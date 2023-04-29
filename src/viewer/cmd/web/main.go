@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"strings"
@@ -36,11 +37,17 @@ func main() {
 
 func handleIndex() http.HandlerFunc {
 	param := page.StatusParams{
-		IndexParams: page.IndexParams{StylesheetURL: "/public/style.css"},
+		IndexParams: page.IndexParams{StylesheetURL: "/public/indexstyle.css"},
 		Title:       "Status viewer",
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		log.Println("index handler called for", r.URL)
+
+		if r.URL.Path != "/" {
+			errorHandler(w, r, http.StatusNotFound)
+			return
+		}
+
 		buf := &bytes.Buffer{}
 		err := page.Status(buf, param)
 		if err != nil {
@@ -57,6 +64,13 @@ func handlePublic(path string) http.Handler {
 	// Necessary to strip because file server serves relative to ./public/ folder.
 	return http.StripPrefix(path,
 		http.FileServer(http.Dir(strings.ReplaceAll(path, "/", ""))))
+}
+
+func errorHandler(w http.ResponseWriter, r *http.Request, status int) {
+	w.WriteHeader(status)
+	if status == http.StatusNotFound {
+		fmt.Fprintf(w, "You just got %d'ed! :-(", status)
+	}
 }
 
 // func socketHandler(w http.ResponseWriter, r *http.Request) {

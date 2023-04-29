@@ -3,9 +3,9 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- <title>{{.Title}}</title> -->
-    <!-- <link rel="stylesheet" href="{{.StylesheetURL}}" /> -->
-    <link rel="stylesheet" href="/home/mskk/repos/go/calculator/src/viewer/public/style.css"/>
+    <title>{{.Title}}</title>
+    <link rel="stylesheet" href="{{.StylesheetURL}}" />
+    <!-- <link rel="stylesheet" href="/home/mskk/repos/go/calculator/src/viewer/public/indexstyle.css"/> -->
   </head>
 
   <body>
@@ -19,13 +19,15 @@
         <button id="calcbtn" type="submit" onClick="runCalculation(calcin.value)">Go!</button>
       </div>
 
-      <div class="right">
-        <p>there</p>
-      </div>
+      <!-- Unused currently -->
+      <div class="right"></div>
     </div>
 
     <!-- Templated content -->
-    <!-- {{block "content" .}}{{end}} -->
+    <div class="content">
+      {{block "content" .}}{{end}}
+    </div>
+
   </body>
 
   <script>
