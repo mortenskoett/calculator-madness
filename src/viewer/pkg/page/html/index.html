@@ -5,32 +5,26 @@
     <meta charset="UTF-8" />
     <title>{{.Title}}</title>
 
-    <!-- Load all stylesheets used in templating -->
+    <!-- Load templated stylesheets -->
     {{range .IndexParams.StylesheetURL}}
       <link rel="stylesheet" href="{{.}}" />
     {{end}}
-
-    <!-- For debugging -->
-    <!-- <link rel="stylesheet" href="/home/mskk/repos/go/calculator/src/viewer/public/indexstyle.css"/> -->
   </head>
 
   <body>
     <div class="navbar">
       <div class="left">
-        <img src="/public/images/calculator.ico" alt="Cog icon" width="40" height="40">
-        <a class="active" href="/">Calculation Status</a>
+        <img src="{{.IndexParams.FaviconURL}}" alt="Cog icon" width="40">
+        <a class="active" href="/">Calculator Status</a>
       </div>
 
       <div class="center">
         <input id="calcin" type="text" placeholder="Input equation..." onkeypress="enterKeyHandler(event, 'calcbtn')">
         <button id="calcbtn" type="submit" onClick="runCalculation(calcin.value)">Go!</button>
       </div>
-
-      <!-- Unused currently -->
-      <div class="right"></div>
     </div>
 
-    <!-- Templated content -->
+    <!-- Load templated content -->
     <div class="content">
       {{block "content" .}}{{end}}
     </div>

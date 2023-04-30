@@ -22,6 +22,7 @@ var (
 
 type IndexParams struct {
 	StylesheetURL []string
+	FaviconURL    string
 }
 
 type Progress struct {
@@ -39,9 +40,9 @@ type Calculation struct {
 }
 
 type StatusParams struct {
-	IndexParams         IndexParams
-	Title               string
-	Calculations        []Calculation
+	IndexParams  IndexParams
+	Title        string
+	Calculations []Calculation
 }
 
 func Status(w io.Writer, p StatusParams) error {

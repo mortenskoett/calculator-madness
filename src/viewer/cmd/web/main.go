@@ -15,7 +15,7 @@ const (
 	ServiceNameChannel string = "viewer"
 	indexStyleURL      string = "/public/indexstyle.css"
 	statusStyleURL     string = "/public/statusstyle.css"
-	faviconURL         string = "/public/images/calculator.ico"
+	faviconURL         string = "/public/images/calculator-crop.ico"
 )
 
 var (
@@ -71,6 +71,7 @@ func main() {
 func handleIndex() http.HandlerFunc {
 	param := page.StatusParams{
 		IndexParams: page.IndexParams{
+			FaviconURL : faviconURL,
 			StylesheetURL: []string{indexStyleURL, statusStyleURL},
 		},
 		Title:        "Status viewer",
