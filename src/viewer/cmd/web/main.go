@@ -74,7 +74,7 @@ func handleIndex() http.HandlerFunc {
 			FaviconURL : faviconURL,
 			StylesheetURL: []string{indexStyleURL, statusStyleURL},
 		},
-		Title:        "Status viewer",
+		Title:        "Calculator Web Viewer",
 		Calculations: calcs,
 	}
 
