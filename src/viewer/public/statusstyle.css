@@ -24,6 +24,14 @@ body {
   vertical-align: middle;
 }
 
+progress {
+  background-color: #f3f3f3;
+  border: 0;
+  height: 18px;
+  border-radius: 9px;
+  width: 300px;
+}
+
 h5 {
   margin: 10px;
 }
