@@ -18,10 +18,10 @@
         <a class="active" href="/">Calculator Status</a>
       </div>
 
-      <div class="center">
-        <input id="calcin" type="text" placeholder="Input equation..." onkeypress="enterKeyHandler(event, 'calcbtn')">
-        <button id="calcbtn" type="submit" onClick="runCalculation(calcin.value)">Go!</button>
-      </div>
+      <form class="center" onsubmit="sendEquation(); return false;"/>
+        <input type="text" id="equation" name="equation" placeholder="Input equation..." />
+        <input type="submit" id="eq-btn" value="Go!"/>
+      </form>
     </div>
 
     <!-- Load templated content -->
@@ -31,19 +31,7 @@
 
   </body>
 
-  <script>
-  function enterKeyHandler(e, button) {
-      e = e || window.event;
-      if (e.key == 'Enter') {
-          document.getElementById(button).click();
-      }
-  }
-
-  function runCalculation(msg) {
-    alert(msg);
-  }
-
-  </script>
+ <script type="text/javascript" src="/public/js/index.js"></script>
 
 </html>
 

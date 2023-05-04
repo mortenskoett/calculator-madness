@@ -3,20 +3,20 @@
 <div class="calc-wrapper">
     <h5> Ongoing </h5>
     <div class="ongoing">
-            {{range .Calculations}}
-                {{if (lt .Progress.Current .Progress.Outof)}}
-                    <div class="elem">
-                        <div class="result">
-                            {{.Equation}} = {{.Result}}
-                        </div>
-
-                        <div class="progress">
-                            <img src="/public/images/cog.png" alt="Cog icon" width="20" height="20">
-                            <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress>
-                        </div>
+        {{range .Calculations}}
+            {{if (lt .Progress.Current .Progress.Outof)}}
+                <div class="elem">
+                    <div class="result">
+                        {{.Equation}} = {{.Result}}
                     </div>
-                {{end}}
+
+                    <div class="progress">
+                        <img src="/public/images/cog.png" alt="Cog icon" width="20" height="20">
+                        <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress>
+                    </div>
+                </div>
             {{end}}
+        {{end}}
     </div>
 
     <h5> Finished </h5>
@@ -38,8 +38,4 @@
     </div>
     <div></div>
 </div>
-
- <!-- Javascript used to Connect to Websocket -->
- <script type="text/javascript" src="/public/js/status.js"></script>
-
 {{end}}
