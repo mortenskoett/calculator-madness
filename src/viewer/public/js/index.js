@@ -1,28 +1,38 @@
 /* Index page javascript */
 
-// Check if the browser supports WebSocket
 window.onload = function() {
-	if (window["WebSocket"]) {
-		console.log("Browser supports websockets OK");
-
-		// Connect to websocket
-		conn = new WebSocket("ws://" + document.location.host + "/ws");
-
-	} else {
+	// Check if the browser supports WebSocket
+	if (!window["WebSocket"]) {
 		console.log("Browser does not support websockets FAIL");
 		alert("Browser does not support websockets FAIL");
+		return;
+	}
+	console.log("Browser supports websockets OK");
+
+	// Connect to websocket
+	conn = new WebSocket("ws://" + document.location.host + "/ws");
+
+	// Add a listener to the onmessage event
+	conn.onmessage = function(evt) {
+		console.log(evt);
 	}
 };
 
-// Send calculation to backend using websocket
+// sendEquation sends the equation to the backend using websocket
 function sendEquation() {
-	fname = "equation";
+	var fname = "equation";
 
 	var eq = document.getElementById(fname);
-	if (eq != null) {
-		console.log(eq.value);
+	if (isSomething(eq.value)) {
 		conn.send(eq.value)
 	}
 
+	// console.log(eq.value)
+	// console.log(isSomething(eq.value))
+	// console.log(conn)
+
 	document.getElementById(fname).value = '';
 }
+
+// isSometing checks whether a var is not null|undefined|""
+const isSomething = (str) => str ? true : false

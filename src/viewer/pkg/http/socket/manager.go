@@ -26,19 +26,18 @@ func NewManager() *Manager {
 
 func (m *Manager) HandleWS() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
 		conn, err := m.upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			log.Print("websocket upgrade failed: ", err)
 			return
 		}
-		defer conn.Close()
 		log.Print("websocket upgrade successfully made")
 
 		client := newClient(conn, m.remove)
 		m.add(client)
 
-		client.readMessages()
+		go client.readMessages()
+		go client.writeMessages()
 	}
 }
 

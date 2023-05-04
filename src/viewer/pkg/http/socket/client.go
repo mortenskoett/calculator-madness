@@ -11,6 +11,7 @@ type removeFunc func(*client)
 type client struct {
 	connection *websocket.Conn
 	rmFunc     removeFunc
+	outbox     chan []byte
 }
 
 // newClient instantiates an incoming websocket connection client. It needs a function to remove
@@ -19,10 +20,11 @@ func newClient(conn *websocket.Conn, rm removeFunc) *client {
 	return &client{
 		connection: conn,
 		rmFunc:     rm,
+		outbox:     make(chan []byte),
 	}
 }
 
-// readMessages blocks and continues to read messages from this client.
+// readMessages blocks and continues to read messages for this client.
 func (c *client) readMessages() {
 	defer c.rmFunc(c)
 	for {
@@ -33,7 +35,27 @@ func (c *client) readMessages() {
 			}
 			break
 		}
+		// TODO: Handle messages
 		log.Println("MessageType: ", mtype)
 		log.Println("Payload: ", string(p))
+	}
+}
+
+func (c *client) writeMessages() {
+	defer c.rmFunc(c)
+	for {
+		select {
+		case msg, ok := <-c.outbox:
+			if !ok {
+				if err := c.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
+					log.Println("failed to write channel closed message: ", err)
+				}
+				return
+			}
+
+			if err := c.connection.WriteMessage(websocket.TextMessage, msg); err != nil {
+				log.Printf("failed to send message %s from client: %v", msg, err)
+			}
+		}
 	}
 }
