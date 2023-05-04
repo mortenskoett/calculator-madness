@@ -21,7 +21,7 @@ func (s *server) attachRoutes() {
 	s.mux.HandleFunc("/", s.logFunc(s.handleIndex()))
 	s.mux.HandleFunc("/favicon.ico", s.logFunc(s.serveFile(faviconURL)))
 	s.mux.Handle("/public/", s.logHandler(s.fileServerHandler("/public/")))
-	// mux.HandleFunc("/socket", socketHandler)
+	s.mux.HandleFunc("/ws", s.wsmanager.HandleWS())
 }
 
 func (s *server) handleIndex() http.HandlerFunc {
@@ -114,31 +114,3 @@ func (s *server) errorHandler(w http.ResponseWriter, r *http.Request, status int
 		fmt.Fprintf(w, "You just got %d'ed! :-(", status)
 	}
 }
-
-// var updgrader = websocket.Upgrader{
-// 	ReadBufferSize:  1024,
-// 	WriteBufferSize: 1024,
-// }
-
-// type websocketManager struct {
-// }
-
-// func (s *server) socketHandler(w http.ResponseWriter, r *http.Request) {
-// 	log.Print("attempting upgrade to websocket")
-// 	conn, err := upgrader.Upgrade(w, r, nil)
-// 	if err != nil {
-// 		log.Print("upgrade failed: ", err)
-// 		return
-// 	}
-// 	defer conn.Close()
-
-// 	mt, message, err := conn.ReadMessage()
-// 	if err != nil {
-// 		log.Println("read failed:", err)
-// 	}
-// 	log.Print(string(message))
-
-// 	retmsg := []byte("<h1>Hello Anne Dorte!</h1>")
-
-// 	err = conn.WriteMessage(mt, retmsg)
-// }

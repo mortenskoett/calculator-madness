@@ -5,6 +5,7 @@ package http
 import (
 	"log"
 	"net/http"
+	"viewer/pkg/http/socket"
 )
 
 type Config struct {
@@ -12,15 +13,17 @@ type Config struct {
 }
 
 type server struct {
-	mux    *http.ServeMux
-	config *Config
+	mux       *http.ServeMux
+	config    *Config
+	wsmanager *socket.Manager
 }
 
-func NewServer(config *Config) *server {
+func NewServer(config *Config, wsmanager *socket.Manager) *server {
 	log.Println("starting calculator viewer web service")
 	s := &server{
-		mux:    http.NewServeMux(),
-		config: config,
+		mux:       http.NewServeMux(),
+		config:    config,
+		wsmanager: wsmanager,
 	}
 	s.attachRoutes()
 	return s

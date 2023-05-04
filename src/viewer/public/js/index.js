@@ -14,22 +14,15 @@ window.onload = function() {
 	}
 };
 
-// Send request on 'enter'
-// function enterKeyHandler(e, button) {
-// 	e = e || window.event;
-// 	if (e.key == 'Enter') {
-// 		document.getElementById(button).click();
-// 	}
-// }
-
 // Send calculation to backend using websocket
 function sendEquation() {
 	fname = "equation";
+
 	var eq = document.getElementById(fname);
 	if (eq != null) {
 		console.log(eq.value);
+		conn.send(eq.value)
 	}
-	document.getElementById(fname).value = '';
 
-	return false;
+	document.getElementById(fname).value = '';
 }
