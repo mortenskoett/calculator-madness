@@ -11,13 +11,13 @@ var files embed.FS
 
 // All templates are placed inside the index file using the {{content}} var name.
 const (
-	indexFilename = "index.html"
+	indexFilename = "index.gohtml"
 	indexPath     = "html/" + indexFilename
 )
 
 // HTML template.
 var (
-	status = parse("html/status.html")
+	status = parse("html/status.gohtml")
 )
 
 type IndexParams struct {
