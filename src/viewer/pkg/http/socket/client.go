@@ -38,6 +38,9 @@ func (c *client) readMessages() {
 		// TODO: Handle messages
 		log.Println("MessageType: ", mtype)
 		log.Println("Payload: ", string(p))
+
+		// TODO: Should be removed when done testing
+		c.outbox <- append([]byte("hello-"), p...)
 	}
 }
 
