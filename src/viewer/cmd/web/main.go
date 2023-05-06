@@ -4,7 +4,7 @@ import (
 	"flag"
 	"viewer/pkg/env"
 	"viewer/pkg/http"
-	"viewer/pkg/http/socket"
+	"viewer/pkg/http/websocket"
 )
 
 const (
@@ -18,7 +18,7 @@ var (
 
 func main() {
 	flag.Parse()
-	wsmanager := socket.NewManager()
+	wsmanager := websocket.NewManager()
 	config := http.Config{Port: *port}
 	server := http.NewServer(&config, wsmanager)
 	server.ListenAndServe()
