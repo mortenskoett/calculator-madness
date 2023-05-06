@@ -30,17 +30,18 @@ func (c *client) readMessages() {
 	for {
 		mtype, p, err := c.connection.ReadMessage()
 		if err != nil {
-			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+			if websocket.IsUnexpectedCloseError(err,
+			websocket.CloseGoingAway, 
+			websocket.CloseAbnormalClosure) {
 				log.Printf("error reading message: %v", err)
 			}
 			break
 		}
 		// TODO: Handle messages
-		log.Println("MessageType: ", mtype)
-		log.Println("Payload: ", string(p))
+		log.Println("MessageType: ", mtype, "Payload: ", string(p))
 
 		// TODO: Should be removed when done testing
-		c.outbox <- append([]byte("hello-"), p...)
+		c.outbox <- p
 	}
 }
 

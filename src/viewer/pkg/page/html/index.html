@@ -18,8 +18,9 @@
         <a class="active" href="/">Calculator Status</a>
       </div>
 
-      <form class="center" method="POST" onsubmit="sendEquation(); return false;"/>
-        <input type="text" id="equation" name="equation" placeholder="Input equation..." />
+      <!-- <form class="center" method="POST" onsubmit="sendEquation(); return false;"/> -->
+      <form class="center" method="POST" id="eq-form"/>
+        <input type="text" id="eq-text" name="equatnon" placeholder="Input equation..." />
         <input type="submit" id="eq-btn" value="Go!"/>
       </form>
     </div>
@@ -29,10 +30,10 @@
       {{block "content" .}}{{end}}
     </div>
 
-  </body>
+   <!-- Javascript used to work with Websocket -->
+   <script type="module" src="/public/js/index.js"></script>
 
- <!-- Javascript used to work with Websocket -->
- <script type="text/javascript" src="/public/js/index.js"></script>
+  </body>
 
 </html>
 

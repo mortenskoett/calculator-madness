@@ -1,31 +1,6 @@
-/*
-	JS used to interact with server using websocket.
-*/
-
-window.onload = function() {
-	// Check if the browser supports WebSocket
-	if (!window["WebSocket"]) {
-		console.log("Browser does not support websockets FAIL");
-		alert("Browser does not support websockets FAIL");
-		return;
-	}
-	console.log("Browser supports websockets OK");
-
-	// Connect to websocket
-	conn = new WebSocket("ws://" + document.location.host + "/ws");
-
-	// Add a listener to the onmessage event
-	conn.onmessage = function(e) {
-		console.log(e);
-		const data = JSON.parse(e.data);
-		const event = Object.assign(new Event, data);
-		routeEvent(event);
-	}
+const EventType = {
+	NEW_CALCULATION: "new_calculation",
 };
-
-/*
-	Handling of ingoing and outgoing websocket messages.
-*/
 
 class Event {
 	constructor(type, payload) {
@@ -34,42 +9,100 @@ class Event {
 	}
 }
 
-// routeEvent handles the incoming event properly.
-function routeEvent(event) {
-	if (!isSomething(event.type)) {
-		console.log("failed to route event because type is empty:", event);
-		return;
-	}
+var routing = {
+	// routeEvent handles the incoming events.
+	routeEvent: (event) => {
+		if (!utils.isSomething(event.type)) {
+			console.log("Failed to route event because type is empty:", event);
+			return;
+		}
 
-	switch (event.type) {
-		case "new_equation":
-			console.log("new equation")
-			break;
-		default:
-			console.log("unsupported type")
-			break;
+		switch (event.type) {
+			case EventType.NEW_CALCULATION:
+				console.log("New equation event type recieved")
+				break;
+			default:
+				console.log("Unsupported event type received")
+				break;
+		}
+
+		// TODO: Debugging print
+		console.log(event)
+	},
+
+	// sendEvent ships an event to the backend using websocket
+	sendEvent: (type, payload) => {
+		const event = new Event(type, payload);
+		websocket.conn.send(JSON.stringify(event));
+		console.log("Event sent to server:", type)
 	}
 }
 
-// sendEvent ships an event to the backend using websocket
-function sendEvent(type, payload) {
-	const event = new Event(type, payload);
-	conn.send(JSON.stringify(event));
-	console.log("event sent to server: ", type)
-}
-
-// sendEquation sends a new equation to the server to be shown in the status page.
-function sendEquation() {
-	var fname = "equation";
-
-	var eq = document.getElementById(fname);
-	if (isSomething(eq.value)) {
-		conn.send(eq.value)
+var ui = {
+	// startCalculation sends a new equation to the server and starts the calculation.
+	startCalculation: (evt) => {
+		evt.preventDefault();
+		var fname = "eq-text";
+		var eq = document.getElementById(fname);
+		if (utils.isSomething(eq.value)) {
+			routing.sendEvent(EventType.NEW_CALCULATION, eq.value)
+		}
+		document.getElementById(fname).value = '';
 	}
-
-	document.getElementById(fname).value = '';
 }
 
-// isSometing returns true when a var is not null|undefined|""
-const isSomething = (str) => str ? true : false
+var utils = {
+	// isSometing returns true when a var is not null|undefined|""
+	isSomething: (str) => str ? true : false
+}
+
+var websocket = {
+	// Access the websocket connection. 'connect' must be called first.
+	conn: undefined,
+
+	// Check if the browser supports websocket
+	isBrowserSupported: () => {
+		if (window["WebSocket"]) {
+			return true;
+		}
+		return false;
+	},
+
+	connect: () => {
+		if (!websocket.isBrowserSupported(window)) {
+			console.log("Browser does not support websockets FAIL");
+			return;
+		}
+		console.log("Browser supports websockets OK");
+
+		var conn = new WebSocket("ws://" + document.location.host + "/ws");
+		websocket.conn = conn;
+
+		/* Register handlers of incoming events */
+
+		conn.onopen = function() {
+			console.log("Websocket connection established")
+		}
+
+		conn.onclose = function() {
+			console.log("Websocket connection closed")
+		}
+
+		conn.onerror = function(ev) {
+			console.log("Websocket connection error happened:", ev)
+		}
+
+		conn.onmessage = function(ev) {
+			const data = JSON.parse(ev.data);
+			const event = Object.assign(new Event, data);
+			routing.routeEvent(event);
+		}
+	}
+}
+
+// Initial calls when page is loaded
+window.onload = function() {
+	websocket.connect();
+	document.getElementById("eq-form").addEventListener('submit', ui.startCalculation)
+};
 
