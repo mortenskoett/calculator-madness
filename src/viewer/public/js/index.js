@@ -11,15 +11,15 @@ class Event {
 
 var routing = {
 	// routeEvent handles the incoming events.
-	routeEvent: (event) => {
-		if (!utils.isSomething(event.type)) {
-			console.log("Failed to route event because type is empty:", event);
+	routeEvent: (evt) => {
+		if (!utils.isSomething(evt.type)) {
+			console.log("Failed to route event because type is empty:", evt);
 			return;
 		}
 
-		switch (event.type) {
+		switch (evt.type) {
 			case EventType.NEW_CALCULATION:
-				console.log("New equation event type recieved")
+				console.log("New calculation event type recieved")
 				break;
 			default:
 				console.log("Unsupported event type received")
@@ -27,7 +27,7 @@ var routing = {
 		}
 
 		// TODO: Debugging print
-		console.log(event)
+		console.log(evt)
 	},
 
 	// sendEvent ships an event to the backend using websocket
