@@ -18,8 +18,8 @@ const (
 )
 
 func (s *server) attachRoutes() {
-	s.mux.HandleFunc("/", s.logFunc(s.handleIndex()))
-	s.mux.HandleFunc("/favicon.ico", s.logFunc(s.serveFile(faviconURL)))
+	s.mux.HandleFunc("/", s.logHandlerFunc(s.handleIndex()))
+	s.mux.HandleFunc("/favicon.ico", s.logHandlerFunc(s.serveFile(faviconURL)))
 	s.mux.Handle("/public/", s.logHandler(s.fileServerHandler("/public/")))
 	s.mux.HandleFunc("/ws", s.wsmanager.HandleWS())
 }
@@ -101,7 +101,7 @@ func (s *server) logHandler(h http.Handler) http.Handler {
 	})
 }
 
-func (s *server) logFunc(h http.HandlerFunc) http.HandlerFunc {
+func (s *server) logHandlerFunc(h http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		log.Println(r.Method, r.URL.Path)
 		h.ServeHTTP(w, r)

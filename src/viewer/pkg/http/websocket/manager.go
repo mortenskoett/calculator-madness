@@ -13,6 +13,7 @@ import (
 type Manager struct {
 	upgrader websocket.Upgrader
 	clients  map[*client]bool
+	router   *eventRouter
 	sync.RWMutex
 }
 
@@ -20,6 +21,7 @@ func NewManager() *Manager {
 	return &Manager{
 		upgrader: websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024},
 		clients:  map[*client]bool{},
+		router:   newEventRouter(),
 		RWMutex:  sync.RWMutex{},
 	}
 }
@@ -33,7 +35,7 @@ func (m *Manager) HandleWS() http.HandlerFunc {
 		}
 		log.Print("websocket upgrade successfully made")
 
-		client := newClient(conn, m.remove)
+		client := newClient(conn, m.router, m.remove)
 		m.add(client)
 
 		go client.readMessages()

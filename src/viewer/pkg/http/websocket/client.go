@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"encoding/json"
 	"log"
 
 	"github.com/gorilla/websocket"
@@ -11,16 +12,18 @@ type removeFunc func(*client)
 type client struct {
 	connection *websocket.Conn
 	rmFunc     removeFunc
-	outbox     chan []byte
+	outbox     chan Event
+	router     *eventRouter
 }
 
 // newClient instantiates an incoming websocket connection client. It needs a function to remove
 // itself from the manager when it is done working.
-func newClient(conn *websocket.Conn, rm removeFunc) *client {
+func newClient(conn *websocket.Conn, router *eventRouter, rm removeFunc) *client {
 	return &client{
 		connection: conn,
 		rmFunc:     rm,
-		outbox:     make(chan []byte),
+		outbox:     make(chan Event),
+		router:     router,
 	}
 }
 
@@ -28,20 +31,32 @@ func newClient(conn *websocket.Conn, rm removeFunc) *client {
 func (c *client) readMessages() {
 	defer c.rmFunc(c)
 	for {
-		mtype, p, err := c.connection.ReadMessage()
+		_, bs, err := c.connection.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err,
-			websocket.CloseGoingAway, 
-			websocket.CloseAbnormalClosure) {
+				websocket.CloseGoingAway,
+				websocket.CloseAbnormalClosure) {
 				log.Printf("error reading message: %v", err)
 			}
 			break
 		}
-		// TODO: Handle messages
-		log.Println("MessageType: ", mtype, "Payload: ", string(p))
 
-		// TODO: Should be removed when done testing
-		c.outbox <- p
+		var req Event
+
+		if err := json.Unmarshal(bs, &req); err != nil {
+			log.Println("failed unmarshal incoming event:", string(bs))
+			break
+		}
+
+		if err := c.router.route(&req, c); err != nil {
+			log.Println("failed route incoming event:", err)
+			break
+		}
+
+		// // TODO: Handle messages
+		// log.Println("MessageType: ", mtype, "Content: ", string(p))
+		// // TODO: Should be removed when done testing
+		c.outbox <- req
 	}
 }
 
@@ -49,7 +64,7 @@ func (c *client) writeMessages() {
 	defer c.rmFunc(c)
 	for {
 		select {
-		case msg, ok := <-c.outbox:
+		case event, ok := <-c.outbox:
 			if !ok {
 				if err := c.connection.WriteMessage(websocket.CloseMessage, nil); err != nil {
 					log.Println("failed to write channel closed message: ", err)
@@ -57,8 +72,14 @@ func (c *client) writeMessages() {
 				return
 			}
 
-			if err := c.connection.WriteMessage(websocket.TextMessage, msg); err != nil {
-				log.Printf("failed to send message %s from client: %v", msg, err)
+			bs, err := json.Marshal(event)
+			if err != nil {
+				log.Println("failed to marshal event before sending:", event)
+				return
+			}
+
+			if err := c.connection.WriteMessage(websocket.TextMessage, bs); err != nil {
+				log.Printf("failed to send message %s from client: %v", bs, err)
 			}
 		}
 	}

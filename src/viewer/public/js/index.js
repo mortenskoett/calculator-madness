@@ -3,9 +3,9 @@ const EventType = {
 };
 
 class Event {
-	constructor(type, payload) {
+	constructor(type, content) {
 		this.type = type;
-		this.payload = payload;
+		this.content = content;
 	}
 }
 
@@ -31,8 +31,8 @@ var routing = {
 	},
 
 	// sendEvent ships an event to the backend using websocket
-	sendEvent: (type, payload) => {
-		const event = new Event(type, payload);
+	sendEvent: (type, content) => {
+		const event = new Event(type, content);
 		websocket.conn.send(JSON.stringify(event));
 		console.log("Event sent to server:", type)
 	}
