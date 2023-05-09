@@ -59,7 +59,8 @@ func (c *client) setReadDeadline(dur time.Duration) error {
 	return nil
 }
 
-// readMessages blocks and continues to read messages for this client.
+// readMessages blocks and continues to read messages for this client. Should be called as
+// a goroutine.
 func (c *client) readMessages() {
 	defer c.cleanupFn(c)
 
@@ -95,6 +96,8 @@ func (c *client) readMessages() {
 	}
 }
 
+// writeMessages empties the outbox continously and sends the found messages to the client. Should
+// be called as goroutine.
 func (c *client) writeMessages() {
 	defer c.cleanupFn(c)
 	pingTicker := time.NewTicker(pingInterval)
