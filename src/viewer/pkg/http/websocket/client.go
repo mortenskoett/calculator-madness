@@ -27,9 +27,9 @@ type cleanupFn func(*client)
 
 type client struct {
 	connection *websocket.Conn
+	router     *eventRouter
 	cleanupFn  cleanupFn
 	outbox     chan Event
-	router     *eventRouter
 }
 
 // newClient instantiates an incoming websocket connection client. It needs a function to remove
@@ -37,16 +37,17 @@ type client struct {
 func newClient(conn *websocket.Conn, router *eventRouter, cleanFn cleanupFn) *client {
 	c := &client{
 		connection: conn,
+		router:     router,
 		cleanupFn:  cleanFn,
 		outbox:     make(chan Event),
-		router:     router,
 	}
 	c.connection.SetPongHandler(c.pongHandler)
+	c.connection.SetReadLimit(512)
 	return c
 }
 
 func (c *client) pongHandler(s string) error {
-	log.Println("pong received", s)
+	log.Println("pong received")
 	c.setReadDeadline(readDeadline)
 	return nil
 }
