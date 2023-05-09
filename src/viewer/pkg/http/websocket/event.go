@@ -55,7 +55,7 @@ type NewCalculationEvent struct {
 }
 
 func (r *eventRouter) handleNewCalculation(ev *Event, c *client) error {
-	log.Println("event router called for event:", ev)
+	log.Println("event router called with event:", ev)
 	return nil
 }
 

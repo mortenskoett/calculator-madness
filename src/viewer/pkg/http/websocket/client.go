@@ -2,34 +2,72 @@ package websocket
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
 
-type removeFunc func(*client)
+// Notes:
+// PING and PONG messages are described in the RFC. In summary, peers (including the browser)
+// automatically respond to a PING message with a PONG message.
+
+// The best practice for detecting a dead client is to read with a deadline. If the client
+// application does not send messages frequently enough for the deadline you want, then send PING
+// messages to induce the client to send a PONG. Update the deadline in the pong handler and after
+// reading a message.
+
+var (
+	readDeadline = 20 * time.Second
+	pingInterval = (readDeadline * 9) / 10 // Calculate 90% without decimals.
+)
+
+type cleanupFn func(*client)
 
 type client struct {
 	connection *websocket.Conn
-	rmFunc     removeFunc
+	cleanupFn  cleanupFn
 	outbox     chan Event
 	router     *eventRouter
 }
 
 // newClient instantiates an incoming websocket connection client. It needs a function to remove
 // itself from the manager when it is done working.
-func newClient(conn *websocket.Conn, router *eventRouter, rm removeFunc) *client {
-	return &client{
+func newClient(conn *websocket.Conn, router *eventRouter, cleanFn cleanupFn) *client {
+	c := &client{
 		connection: conn,
-		rmFunc:     rm,
+		cleanupFn:  cleanFn,
 		outbox:     make(chan Event),
 		router:     router,
 	}
+	c.connection.SetPongHandler(c.pongHandler)
+	return c
+}
+
+func (c *client) pongHandler(s string) error {
+	log.Println("pong received", s)
+	c.setReadDeadline(readDeadline)
+	return nil
+}
+
+func (c *client) setReadDeadline(dur time.Duration) error {
+	if err := c.connection.SetReadDeadline(time.Now().Add(dur)); err != nil {
+		return fmt.Errorf("failed to set read deadline: %w", err)
+	}
+	return nil
 }
 
 // readMessages blocks and continues to read messages for this client.
 func (c *client) readMessages() {
-	defer c.rmFunc(c)
+	defer c.cleanupFn(c)
+
+	// To detect a dead client.
+	if err := c.setReadDeadline(readDeadline); err != nil {
+		log.Println(err)
+		return
+	}
+
 	for {
 		_, bs, err := c.connection.ReadMessage()
 		if err != nil {
@@ -53,15 +91,14 @@ func (c *client) readMessages() {
 			break
 		}
 
-		// // TODO: Handle messages
-		// log.Println("MessageType: ", mtype, "Content: ", string(p))
-		// // TODO: Should be removed when done testing
-		c.outbox <- req
 	}
 }
 
 func (c *client) writeMessages() {
-	defer c.rmFunc(c)
+	defer c.cleanupFn(c)
+
+	ticker := time.NewTicker(pingInterval)
+
 	for {
 		select {
 		case event, ok := <-c.outbox:
@@ -71,15 +108,20 @@ func (c *client) writeMessages() {
 				}
 				return
 			}
-
 			bs, err := json.Marshal(event)
 			if err != nil {
 				log.Println("failed to marshal event before sending:", event)
 				return
 			}
-
 			if err := c.connection.WriteMessage(websocket.TextMessage, bs); err != nil {
-				log.Printf("failed to send message %s from client: %v", bs, err)
+				log.Printf("failed to send message %s to client: %v", string(bs), err)
+			}
+
+		case <-ticker.C:
+			// Send ping to client
+			log.Println("ping sent")
+			if err := c.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
+				log.Println("failed to send ping message: ", err)
 			}
 		}
 	}
