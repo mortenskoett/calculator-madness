@@ -19,7 +19,7 @@ import (
 // reading a message.
 
 var (
-	readDeadline = 20 * time.Second
+	readDeadline = 30 * time.Second
 	pingInterval = (readDeadline * 9) / 10 // Calculate 90% without decimals.
 )
 
