@@ -96,8 +96,7 @@ func (c *client) readMessages() {
 
 func (c *client) writeMessages() {
 	defer c.cleanupFn(c)
-
-	ticker := time.NewTicker(pingInterval)
+	pingTicker := time.NewTicker(pingInterval)
 
 	for {
 		select {
@@ -117,11 +116,11 @@ func (c *client) writeMessages() {
 				log.Printf("failed to send message %s to client: %v", string(bs), err)
 			}
 
-		case <-ticker.C:
-			// Send ping to client
+		case <-pingTicker.C:
 			log.Println("ping sent")
 			if err := c.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
 				log.Println("failed to send ping message: ", err)
+				return
 			}
 		}
 	}
