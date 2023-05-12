@@ -25,43 +25,12 @@ func (s *server) attachRoutes() {
 }
 
 func (s *server) handleIndex() http.HandlerFunc {
-	var (
-		// FIXME: Dummy implementation. Delete later.
-		calcs = []page.Calculation{
-			{
-				CalculationID: "1",
-				MessageID:     "abc1",
-				CreatedTime:   "1.1.1",
-				Equation:      "1+1",
-				Progress:      page.Progress{Current: 2, Outof: 5},
-				Result:        "",
-			},
-			{
-				CalculationID: "2",
-				MessageID:     "abc2",
-				CreatedTime:   "2.2.2",
-				Equation:      "2+2",
-				Progress:      page.Progress{Current: 0, Outof: 5},
-				Result:        "",
-			},
-			{
-				CalculationID: "3",
-				MessageID:     "abc3",
-				CreatedTime:   "3.3.3",
-				Equation:      "3*3",
-				Progress:      page.Progress{Current: 5, Outof: 5},
-				Result:        "9",
-			},
-		}
-	)
-
 	param := page.StatusParams{
 		IndexParams: page.IndexParams{
 			FaviconURL:    faviconURL,
 			StylesheetURL: []string{indexStyleURL, statusStyleURL},
 		},
-		Title:        "Calculator Web Viewer",
-		Calculations: calcs,
+		Title: "Calculator Web Viewer",
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -25,24 +25,9 @@ type IndexParams struct {
 	FaviconURL    string
 }
 
-type Progress struct {
-	Current int
-	Outof   int
-}
-
-type Calculation struct {
-	CalculationID string
-	MessageID     string
-	CreatedTime   string
-	Equation      string
-	Progress      Progress
-	Result        string
-}
-
 type StatusParams struct {
 	IndexParams  IndexParams
 	Title        string
-	Calculations []Calculation
 }
 
 func Status(w io.Writer, p StatusParams) error {

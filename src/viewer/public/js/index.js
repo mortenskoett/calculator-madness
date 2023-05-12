@@ -1,4 +1,5 @@
 const EventType = {
+	START_CALCULATION: "start_calculation",
 	NEW_CALCULATION: "new_calculation",
 };
 
@@ -6,6 +7,23 @@ class Event {
 	constructor(type, content) {
 		this.type = type;
 		this.content = content;
+	}
+}
+
+class StartCalculationRequest {
+	constructor(equation) {
+		this.equation = equation;
+	}
+}
+
+// Response received from backend when a new calculation must be shown
+class StartCalculationResponse {
+	constructor(id, created_time, equation, progress, result) {
+		this.id = id;
+		this.created_time = created_time;
+		this.equation = equation;
+		this.progress = progress;
+		this.result = result;
 	}
 }
 
@@ -20,14 +38,13 @@ var routing = {
 		switch (evt.type) {
 			case EventType.NEW_CALCULATION:
 				console.log("New calculation event type recieved")
+				const calc = Object.assign(new StartCalculationResponse, evt.content);
+				ui.appendCalculation(calc)
 				break;
 			default:
-				console.log("Unsupported event type received")
+				console.log("Unsupported event type received:", evt)
 				break;
 		}
-
-		// TODO: Debugging print
-		console.log(evt)
 	},
 
 	// sendEvent ships an event to the backend using websocket
@@ -39,15 +56,22 @@ var routing = {
 }
 
 var ui = {
-	// startCalculation sends a new equation to the server and starts the calculation.
+	// createNewCalculation sends a new equation to the server and starts the calculation.
 	startCalculation: (evt) => {
 		evt.preventDefault();
 		var fname = "eq-text";
 		var eq = document.getElementById(fname);
 		if (utils.isSomething(eq.value)) {
-			routing.sendEvent(EventType.NEW_CALCULATION, eq.value)
+			let outEvent = new StartCalculationRequest(eq.value)
+			routing.sendEvent(EventType.START_CALCULATION, outEvent)
 		}
 		document.getElementById(fname).value = '';
+	},
+
+	appendCalculation: (calc) => {
+		console.log("nice");
+		console.log(calc);
+		// TODO: Insert js code to create a calc in the board
 	}
 }
 

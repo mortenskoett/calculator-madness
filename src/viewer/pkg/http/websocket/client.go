@@ -59,7 +59,12 @@ func (c *client) setReadDeadline(dur time.Duration) error {
 	return nil
 }
 
-// readMessages blocks and continues to read messages for this client. Should be called as
+// Send puts the given Event in the outbox of the client to be sent to the UI.
+func (c *client) send(ev *Event) {
+	c.outbox <- *ev
+}
+
+// ReadMessages blocks and continues to read messages for this client. Should be called as
 // a goroutine.
 func (c *client) readMessages() {
 	defer c.cleanupFn(c)
@@ -96,7 +101,7 @@ func (c *client) readMessages() {
 	}
 }
 
-// writeMessages empties the outbox continously and sends the found messages to the client. Should
+// WriteMessages empties the outbox continously and sends the found messages to the client. Should
 // be called as goroutine.
 func (c *client) writeMessages() {
 	defer c.cleanupFn(c)
