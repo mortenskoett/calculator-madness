@@ -70,7 +70,7 @@ var ui = {
 	},
 
 	appendCalculation: (calc) => {
-		console.log(calc);
+		console.log("Appending calculation", calc);
 		var calcElem = document.createElement("div");
 		calcElem.className = "result-elem";
 		calcElem.id = calc.id;
@@ -89,7 +89,11 @@ var ui = {
 		`;
 
 		document.getElementById("ongoing").appendChild(calcElem);
-	}
+	},
+
+	updateCalculation: (calc) => {
+		console.log("Updating calculation", calc);
+	},
 }
 
 var utils = {
