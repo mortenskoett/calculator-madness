@@ -1,10 +1,13 @@
 package websocket
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 type Event struct {
-	Type    string          `json:"type"`
-	Content json.RawMessage `json:"content"` // Should be marshalled individually by handlers.
+	Type     string          `json:"type"`
+	Contents json.RawMessage `json:"contents"` // Should be marshalled individually by handlers.
 }
 
 type Progress struct {
@@ -13,11 +16,11 @@ type Progress struct {
 }
 
 type Calculation struct {
-	ID          string   `json:"id"`
-	Equation    string   `json:"equation"`
-	CreatedTime string   `json:"created_time"`
-	Progress    Progress `json:"progress"`
-	Result      string   `json:"result"`
+	ID          string    `json:"id"`
+	Equation    string    `json:"equation"`
+	CreatedTime time.Time `json:"created_time"`
+	Progress    Progress  `json:"progress"`
+	Result      string    `json:"result"`
 }
 
 // Request from UI.

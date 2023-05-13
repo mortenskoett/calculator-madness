@@ -9,7 +9,7 @@ import (
 //go:embed html/*
 var files embed.FS
 
-// All templates are placed inside the index file using the {{content}} var name.
+// All templates are placed inside the index file using the {{contents}} var name.
 const (
 	indexFilename = "index.html"
 	indexPath     = "html/" + indexFilename

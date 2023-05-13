@@ -11,7 +11,7 @@ body {
   background-color: #f7f7f7;
 }
 
-.calc-wrapper .elem {
+.calc-wrapper .result-elem {
   background-color: white;
   padding: 8px;
   margin: 8px 20px 8px 20px;
@@ -36,7 +36,7 @@ h5 {
   margin: 10px;
 }
 
-.calc-wrapper .result {
+.calc-wrapper .result-elem {
   display:flex;
 }
 
@@ -45,12 +45,12 @@ h5 {
   margin-left:auto;
 }
 
-.elem img {
+.result-elem img {
   display:flex;
   margin: 0 10px 0 0;
 }
 
-.ongoing img {
+#ongoing img {
   animation: rotation 12s infinite linear;
 }
 

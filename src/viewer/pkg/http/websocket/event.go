@@ -22,7 +22,7 @@ const (
 )
 
 const (
-	defaultProgressSteps int = 5
+	initialStepCount int = 5
 )
 
 var (
@@ -64,18 +64,18 @@ func (r *eventRouter) handleStartCalculation(ev *Event, c *client) error {
 	log.Println("event router received event type:", ev.Type)
 
 	var req StartCalculationRequest
-	if err := json.Unmarshal(ev.Content, &req); err != nil {
+	if err := json.Unmarshal(ev.Contents, &req); err != nil {
 		return fmt.Errorf("failed to unmarshal %+v: %w", req, err)
 	}
 
 	resp := StartCalculationResponse{
 		Calculation: Calculation{
 			ID:          uuid.NewString(),
-			CreatedTime: time.Now().String(),
+			CreatedTime: time.Now(),
 			Equation:    req.Equation,
 			Progress: Progress{
 				Current: 0,
-				Outof:   defaultProgressSteps,
+				Outof:   initialStepCount,
 			},
 			Result: "",
 		},
@@ -88,7 +88,7 @@ func (r *eventRouter) handleStartCalculation(ev *Event, c *client) error {
 
 	outEvent := Event{
 		Type:    eventNewCalculation,
-		Content: bs,
+		Contents: bs,
 	}
 
 	c.send(&outEvent)

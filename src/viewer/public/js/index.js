@@ -4,9 +4,9 @@ const EventType = {
 };
 
 class Event {
-	constructor(type, content) {
+	constructor(type, contents) {
 		this.type = type;
-		this.content = content;
+		this.contents = contents;
 	}
 }
 
@@ -35,10 +35,11 @@ var routing = {
 			return;
 		}
 
+		console.log("Event recieved:", evt.type)
+
 		switch (evt.type) {
 			case EventType.NEW_CALCULATION:
-				console.log("New calculation event type recieved")
-				const calc = Object.assign(new StartCalculationResponse, evt.content);
+				const calc = Object.assign(new StartCalculationResponse, evt.contents);
 				ui.appendCalculation(calc)
 				break;
 			default:
@@ -48,8 +49,8 @@ var routing = {
 	},
 
 	// sendEvent ships an event to the backend using websocket
-	sendEvent: (type, content) => {
-		const event = new Event(type, content);
+	sendEvent: (type, contents) => {
+		const event = new Event(type, contents);
 		websocket.conn.send(JSON.stringify(event));
 		console.log("Event sent to server:", type)
 	}
@@ -69,9 +70,25 @@ var ui = {
 	},
 
 	appendCalculation: (calc) => {
-		console.log("nice");
 		console.log(calc);
-		// TODO: Insert js code to create a calc in the board
+		var calcElem = document.createElement("div");
+		calcElem.className = "result-elem";
+		calcElem.id = calc.id;
+		// TODO: Insert more useful stuff like date
+		// var date = new Date(calc.created_time).toLocaleTimeString('en-UK');
+		// <div class="result-date">
+		// 	${date}
+		// </div>
+
+		calcElem.innerHTML = `
+		${calc.equation} = ?
+		<div class="progress">
+			<img src="/public/images/cog.png" alt="Cog icon" width="20" height="20">
+			<progress id="progress" value=${calc.progress.current} max=${calc.progress.outof}></progress>
+		</div>
+		`;
+
+		document.getElementById("ongoing").appendChild(calcElem);
 	}
 }
 
