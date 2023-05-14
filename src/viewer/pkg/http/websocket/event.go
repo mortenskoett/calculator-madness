@@ -61,7 +61,7 @@ func (r *eventRouter) attach(eventType string, h handler) {
 /* Event handlers */
 
 func (r *eventRouter) handleStartCalculation(ev *Event, c *client) error {
-	log.Println("event router received event:", ev.Type)
+	log.Println("router received event:", ev.Type)
 
 	var req StartCalculationRequest
 	if err := json.Unmarshal(ev.Contents, &req); err != nil {

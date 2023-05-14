@@ -13,5 +13,6 @@ build: ## Build everything
 run: ## Run calculator server
 	docker run -p 8000:8000 calculator-server
 
-help:
-	@grep -F -h "##" $(MAKEFILE_LIST) | grep -F -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
+.PHONY: help
+help: ## Display this help
+	@grep -E '^[a-zA-Z_0-9-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

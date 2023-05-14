@@ -46,3 +46,15 @@ services:
       - nsqlookupd
     environment:
       NSQLOOKUPD_ADDR: "nsqlookupd:4161"
+
+  viewer-web:
+    build:
+      context: ./src
+      dockerfile: viewer/Dockerfile.web
+    depends_on:
+      - nsqd
+      - nsqlookupd
+    ports:
+      - "3000:3000"
+    environment:
+      NSQLOOKUPD_ADDR: "nsqlookupd:4161"

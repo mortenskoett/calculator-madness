@@ -1,14 +1,21 @@
 SHARED_QUEUE := "../shared/queue"
 .DEFAULT_GOAL := help
 
-build: ## Build everything
+build-cli: ## Build cli
 	make build -C $(SHARED_QUEUE)
 	docker build -t viewer-cli -f Dockerfile.cli ../
 
-run: ## Run the viewer cli
+run-cli: ## Run viewer cli
 	docker run viewer-cli
 
-rerun-web: ## Rerun web app on changes
+build-web: ## Build web server
+	make build -C $(SHARED_QUEUE)
+	docker build -t viewer-web -f Dockerfile.web ../
+
+run-web: ## Run web server
+	docker run -p 3000:3000 viewer-web
+
+rerun-web-local: ## Rerun web app on changes
 	reflex -s -- sh -c 'go run ./cmd/web'
 
 .PHONY: help
