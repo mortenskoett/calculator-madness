@@ -3,6 +3,7 @@ package http
 /* Setup of the HTTP server */
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"viewer/pkg/http/websocket"
@@ -19,7 +20,7 @@ type server struct {
 }
 
 func NewServer(config *Config, wsmanager *websocket.Manager) *server {
-	log.Println("starting calculator viewer web service")
+	log.Println("starting calculator viewer http server")
 	s := &server{
 		mux:       http.NewServeMux(),
 		config:    config,
@@ -29,7 +30,15 @@ func NewServer(config *Config, wsmanager *websocket.Manager) *server {
 	return s
 }
 
-func (s *server) ListenAndServe() {
-	log.Println("http server listening at port", s.config.Port)
-	log.Fatalln(http.ListenAndServe(":"+s.config.Port, s.mux))
+// Blocking call.
+func (s *server) ListenAndServe(ctx context.Context) {
+		log.Println("http server listening at port", s.config.Port)
+	go func() {
+		log.Fatalln(http.ListenAndServe(":"+s.config.Port, s.mux))
+	}()
+
+	// Handle shutdown using context
+	<-ctx.Done()
+	log.Println("stopping http server: cancelled by context.")
+	return
 }

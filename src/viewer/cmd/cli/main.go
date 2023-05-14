@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 	"shared/queue"
@@ -62,10 +63,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer consumer.Stop()
 
 	consumer.AddCalcStartedHandler(calcStartedHandler)
 	consumer.AddCalcProgressHandler(calcProgressHandler)
 	consumer.AddCalcEndedHandler(calcEndedHandler)
-	consumer.Start()
-	defer consumer.Stop()
+	consumer.Start(context.Background())
 }
