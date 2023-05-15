@@ -1,5 +1,10 @@
 SHARED_QUEUE := "../shared/queue"
+PROTOS_DIR := ../../protos
+
 .DEFAULT_GOAL := help
+
+build-protos: ## Build protobuf Go stubs
+	protoc --proto_path=$(PROTOS_DIR) --go_out=api --go-grpc_out=api $(PROTOS_DIR)/*.proto
 
 build-cli: ## Build cli
 	make build -C $(SHARED_QUEUE)

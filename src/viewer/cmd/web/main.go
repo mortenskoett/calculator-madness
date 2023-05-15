@@ -7,9 +7,13 @@ import (
 	"os"
 	"os/signal"
 	"shared/queue"
+	"viewer/api/pb"
 	"viewer/pkg/env"
 	"viewer/pkg/http"
 	"viewer/pkg/http/websocket"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 const (
@@ -17,8 +21,10 @@ const (
 )
 
 var (
-	nsqlookupAddr = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
-	port          = flag.String("port", env.GetEnvVarOrDefault("PORT", "3000"), "Port on which the UI will be served")
+	nsqlookupAddr  = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
+	port           = flag.String("port", env.GetEnvVarOrDefault("PORT", "3000"), "Port on which the UI will be served")
+	calcServerPort = flag.String("calculator-port", "8000", "Port of Calculator server")
+	calcServerAddr = flag.String("calculator-addr", "localhost", "Address of Calculator server")
 )
 
 func main() {
@@ -28,10 +34,22 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// Setup websocket handling
-	wsmanager := websocket.NewManager()
+	// Calculator service grpc client
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	}
+	calcServerAddress := *calcServerAddr + ":" + *calcServerPort
+	conn, err := grpc.Dial(calcServerAddress, opts...)
+	if err != nil {
+		log.Fatal("failed to create grpc conn:", err)
+	}
+	defer conn.Close()
+	calcClient := pb.NewCalculationServiceClient(conn)
 
-	// Start NSQ client
+	// Websocket handling
+	wsmanager := websocket.NewManager(calcClient)
+
+	// NSQ client
 	nsqconsumer, err := queue.NewNSQConsumer(*nsqlookupAddr, queue.CalcStatusTopic, serviceNameChannel)
 	if err != nil {
 		log.Fatal(err)
@@ -41,7 +59,7 @@ func main() {
 	nsqconsumer.AddCalcEndedHandler(wsmanager.NSQCalcEndedHandler)
 	go nsqconsumer.Start(ctx)
 
-	// Start HTTP server
+	// HTTP server
 	config := http.Config{Port: *port}
 	server := http.NewServer(&config, wsmanager)
 	go server.ListenAndServe(ctx)

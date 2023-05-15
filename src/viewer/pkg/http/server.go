@@ -20,7 +20,7 @@ type server struct {
 }
 
 func NewServer(config *Config, wsmanager *websocket.Manager) *server {
-	log.Println("starting calculator viewer http server")
+	log.Println("starting http server")
 	s := &server{
 		mux:       http.NewServeMux(),
 		config:    config,

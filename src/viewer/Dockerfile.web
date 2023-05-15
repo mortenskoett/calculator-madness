@@ -13,6 +13,7 @@ COPY ./viewer/go.sum ./
 
 RUN go mod download
 
+COPY ./viewer/api ./api
 COPY ./viewer/public/ ./public
 COPY ./viewer/cmd/web ./cmd/web
 COPY ./viewer/pkg ./pkg
