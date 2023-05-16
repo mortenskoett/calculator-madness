@@ -29,10 +29,40 @@ command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 #--broadcast-address=127.0.
 # Details
 Here you'll find drawings and models in details.
 
-## Web viewer
-Diagrams on how the UI interacts with the backend.
+### Component graph of system architecture
+```mermaid
+flowchart LR
+    browser-->http
 
-### Creating a new calculation
+    subgraph calculator
+        direction TB
+        grpc--create calculation-->calc
+    end
+    calc-->producer
+
+    subgraph viewer
+        direction TB
+        http-->manager
+        subgraph websocket
+            manager-->clients
+            clients-->router
+        end
+    end
+
+    router-->consumer
+    router-->grpc
+
+    subgraph nsq
+        direction TB
+        producer-.enqueue.->queue
+        consumer-.dequeue.->queue
+    end
+
+```
+
+
+### Sequence diagram of creating a new calculation
+How the web viewer interacts with the backend when a new calculation is created.
 ```mermaid
 sequenceDiagram
     participant B as Browser
