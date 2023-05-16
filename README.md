@@ -1,5 +1,5 @@
 # Microservice Madness
-Microservice based playground with an equation-calculator theme.
+Microservice based playground with an equation-calculator theme. **This project in essence does nothing and cannot be used for anyting other than learning.**
 
 ## What is this?
 - `server` is a service that exposes a GRPC API to solve an equation.
@@ -29,13 +29,9 @@ command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 #--broadcast-address=127.0.
 # Details
 Here you'll find drawings and models in details.
 
-### Component graph of system architecture
+### Component diagram of system architecture
 ```mermaid
 flowchart LR
-    subgraph calculator
-        grpc--create calculation-->calc
-    end
-
     subgraph viewer
         http-->static
         http-->manager
@@ -46,15 +42,19 @@ flowchart LR
         end
     end
 
+    subgraph calculator
+        grpc--create calculation-->calc
+    end
+
     subgraph nsq
         producer-.enqueue.->queue
         consumer-.dequeue.->queue
     end
 
     browser-->http
-    calc-->producer
-    router--async-->consumer
-    router-->grpc
+    calc--async-->producer
+    manager--async-->consumer
+    router--sync-->grpc
 ```
 
 
@@ -63,7 +63,7 @@ How the web viewer interacts with the backend when a new calculation is created.
 ```mermaid
 sequenceDiagram
     participant B as Browser
-    participant W as Webserver
+    participant W as Viewer
     participant C as Calculator
     participant Q as NSQ
 
@@ -71,9 +71,9 @@ sequenceDiagram
 
     Note over W: Keep state of calculations
 
-    W-->>+C: Start calculation
-
     W-->>B: Create new calc <ID>
+
+    W-->>+C: Start calculation
 
     loop while in progress
         C--)Q: Enqueue calc progress <ID>
