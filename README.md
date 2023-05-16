@@ -32,32 +32,29 @@ Here you'll find drawings and models in details.
 ### Component graph of system architecture
 ```mermaid
 flowchart LR
-    browser-->http
-
     subgraph calculator
-        direction TB
         grpc--create calculation-->calc
     end
-    calc-->producer
 
     subgraph viewer
-        direction TB
+        http-->static
         http-->manager
+        http-->templates
         subgraph websocket
             manager-->clients
             clients-->router
         end
     end
 
-    router-->consumer
-    router-->grpc
-
     subgraph nsq
-        direction TB
         producer-.enqueue.->queue
         consumer-.dequeue.->queue
     end
 
+    browser-->http
+    calc-->producer
+    router--async-->consumer
+    router-->grpc
 ```
 
 
