@@ -1,13 +1,16 @@
 package websocket
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"time"
+	"viewer/api/pb"
 
 	"github.com/google/uuid"
+	"google.golang.org/grpc"
 )
 
 const (
@@ -29,23 +32,30 @@ var (
 	errInvalidEvent = errors.New("the encountered event is invalid")
 )
 
+type Calculator interface {
+	Run(context.Context, *pb.RunCalculationRequest, ...grpc.CallOption) (*pb.RunCalculationResponse, error)
+}
+
 // handler handles each incoming event type.
 type handler func(e *Event, c *client) error
 
-type eventRouter struct {
-	handlers map[string]handler
+// EventRouter routes incoming websocket events to the right handlers.
+type EventRouter struct {
+	handlers   map[string]handler
+	calculator Calculator
 }
 
-// newEventRouter returns a router instance to handle incoming events.
-func newEventRouter() *eventRouter {
-	r := eventRouter{
-		handlers: map[string]handler{},
+// NewEventRouter returns a router instance to handle incoming events.
+func NewEventRouter(calc Calculator) *EventRouter {
+	r := EventRouter{
+		handlers:   map[string]handler{},
+		calculator: calc,
 	}
 	r.attach(eventStartCalculation, r.handleStartCalculation)
 	return &r
 }
 
-func (r *eventRouter) route(ev *Event, c *client) error {
+func (r *EventRouter) route(ev *Event, c *client) error {
 	handler, ok := r.handlers[ev.Type]
 	if !ok {
 		return errInvalidEvent
@@ -54,13 +64,13 @@ func (r *eventRouter) route(ev *Event, c *client) error {
 }
 
 // attach affiliates an event type with a concrete handler implementation.
-func (r *eventRouter) attach(eventType string, h handler) {
+func (r *EventRouter) attach(eventType string, h handler) {
 	r.handlers[eventType] = h
 }
 
 /* Event handlers */
 
-func (r *eventRouter) handleStartCalculation(ev *Event, c *client) error {
+func (r *EventRouter) handleStartCalculation(ev *Event, c *client) error {
 	log.Println("router received event:", ev.Type)
 
 	var req StartCalculationRequest
@@ -87,7 +97,7 @@ func (r *eventRouter) handleStartCalculation(ev *Event, c *client) error {
 	}
 
 	outEvent := Event{
-		Type:    eventNewCalculation,
+		Type:     eventNewCalculation,
 		Contents: bs,
 	}
 

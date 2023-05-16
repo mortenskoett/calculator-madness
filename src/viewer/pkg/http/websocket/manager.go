@@ -1,37 +1,29 @@
 package websocket
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"sync"
-	"viewer/api/pb"
 
 	"github.com/gorilla/websocket"
-	"google.golang.org/grpc"
 )
-
-type Calculator interface {
-	Run(context.Context, *pb.RunCalculationRequest, ...grpc.CallOption) (*pb.RunCalculationResponse, error)
-}
 
 // Manager manages incoming clients that have created a websocket to the server. It facilitates
 // concurrent R/W access for the clients and maintains the state of open connections.
 type Manager struct {
 	upgrader   websocket.Upgrader
 	clients    map[*client]bool
-	router     *eventRouter
-	calculator Calculator
+	router     *EventRouter
 	sync.RWMutex
 }
 
-func NewManager(calc Calculator) *Manager {
+// NewManager returns a websocket manager to concurrently handle socket connections and events
+func NewManager(router *EventRouter) *Manager {
 	return &Manager{
 		upgrader:   websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024},
 		clients:    map[*client]bool{},
-		router:     newEventRouter(),
+		router:     router,
 		RWMutex:    sync.RWMutex{},
-		calculator: calc,
 	}
 }
 

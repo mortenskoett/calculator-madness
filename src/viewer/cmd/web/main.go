@@ -47,7 +47,8 @@ func main() {
 	calcClient := pb.NewCalculationServiceClient(conn)
 
 	// Websocket handling
-	wsmanager := websocket.NewManager(calcClient)
+	wsrouter := websocket.NewEventRouter(calcClient)
+	wsmanager := websocket.NewManager(wsrouter)
 
 	// NSQ client
 	nsqconsumer, err := queue.NewNSQConsumer(*nsqlookupAddr, queue.CalcStatusTopic, serviceNameChannel)

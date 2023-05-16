@@ -9,8 +9,7 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-// Notes:
-// PING and PONG messages are described in the RFC. In summary, peers (including the browser)
+// Notes: PING and PONG messages are described in the RFC. In summary, peers (including the browser)
 // automatically respond to a PING message with a PONG message.
 
 // The best practice for detecting a dead client is to read with a deadline. If the client
@@ -19,7 +18,7 @@ import (
 // reading a message.
 
 var (
-	readDeadline = 30 * time.Second
+	readDeadline = 30 * time.Second        // If no ping happens before deadline the socket is closed
 	pingInterval = (readDeadline * 9) / 10 // Calculate 90% without decimals.
 )
 
@@ -27,14 +26,14 @@ type cleanupFn func(*client)
 
 type client struct {
 	connection *websocket.Conn
-	router     *eventRouter
+	router     *EventRouter
 	cleanupFn  cleanupFn
 	outbox     chan Event
 }
 
 // newClient instantiates an incoming websocket connection client. It needs a function to remove
 // itself from the manager when it is done working.
-func newClient(conn *websocket.Conn, router *eventRouter, cleanFn cleanupFn) *client {
+func newClient(conn *websocket.Conn, router *EventRouter, cleanFn cleanupFn) *client {
 	c := &client{
 		connection: conn,
 		router:     router,
@@ -94,7 +93,7 @@ func (c *client) readMessages() {
 		}
 
 		if err := c.router.route(&req, c); err != nil {
-			log.Println("failed route incoming event:", err)
+			log.Println("failed to route incoming event:", err)
 			break
 		}
 
