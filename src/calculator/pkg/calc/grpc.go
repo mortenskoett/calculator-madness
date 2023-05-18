@@ -67,22 +67,22 @@ func (s *CalculationGRPCServer) Serve() error {
 
 /* GRPC Protobuf end points */
 
-func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	log.Printf("request received to Run equation: %+v", calculationRequest.Equation)
+func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
+	log.Printf("request received to Run equation: %+v", calcRequest.Equation)
 
-	// Fix this
-	startMsg, err := queue.NewCalcStartedMessage()
-	if err != nil {
-		return nil, err
-	}
+	// // Fix this
+	// startMsg, err := queue.NewCalcStartedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	err = s.queueProducer.Publish(startMsg)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("new calculation message sent to queue: clientId:", calculationRequest.ClientId)
+	// err = s.queueProducer.Publish(startMsg)
+	// if err != nil {
+	// return nil, err
+	// }
+	// log.Println("new calculation message sent to queue: clientId:", calcRequest.ClientId)
 
-	result, err := Solve(calculationRequest.Equation)
+	result, err := Solve(calcRequest.Equation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to solve equation: %w", err)
 	}
@@ -97,22 +97,22 @@ func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest 
 	// return nil, err
 	// }
 
-	// TODO: Artifical work
-	// TODO: Do someting to emulate long processing time here here
+	// TODO: Artifical work: Do someting to emulate long processing time
 	log.Println("sleeping...")
 	time.Sleep(time.Duration(result) * time.Second)
 
-	endMsg, err := queue.NewCalcEndedMessage(startMsg.CalculationID)
+	endMsg, err := queue.NewCalcEndedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("end calculation message sent to queue: clientId:", calculationRequest.ClientId)
+	log.Println("end calculation message sent to queue: clientId:", calcRequest.ClientId)
 
 	err = s.queueProducer.Publish(endMsg)
 	if err != nil {
 		return nil, err
 	}
 
+	// TODO: Make the above stuff run in a goroutine so that we don't wait long for this return
 	return &pb.RunCalculationResponse{
 		Error: nil,
 	}, nil

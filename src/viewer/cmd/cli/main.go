@@ -16,19 +16,6 @@ var (
 	nsqlookupdAddr = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
 )
 
-func calcStartedHandler(msg *queue.CalcStartedMessage, err error) error {
-	log.Printf("Calc started: calcID: %+v, msgID: %+v, time: %+v\n",
-		msg.CalculationID,
-		msg.MessageID,
-		msg.CreatedTime,
-	)
-
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func calcProgressHandler(msg *queue.CalcProgressMessage, err error) error {
 	log.Printf("Calc progress: calcID: %+v, msgID: %+v, time: %+v\n",
 		msg.CalculationID,
@@ -59,13 +46,12 @@ func main() {
 	log.Println("starting calculator viewer cli client")
 	flag.Parse()
 
-	consumer, err := queue.NewNSQConsumer(*nsqlookupdAddr, queue.CalcStatusTopic, ServiceNameChannel)
+	consumer, err := queue.NewNSQConsumer(*nsqlookupdAddr, queue.CalculationStatusTopic, ServiceNameChannel)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer consumer.Stop()
 
-	consumer.AddCalcStartedHandler(calcStartedHandler)
 	consumer.AddCalcProgressHandler(calcProgressHandler)
 	consumer.AddCalcEndedHandler(calcEndedHandler)
 	consumer.Start(context.Background())

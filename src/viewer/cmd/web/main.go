@@ -49,7 +49,7 @@ func main() {
 	wsmanager := websocket.NewManager(wsrouter)
 
 	// NSQ client
-	nsqconsumer, err := queue.NewNSQConsumer(*nsqlookupAddr, queue.CalcStatusTopic, serviceNameChannel)
+	nsqconsumer, err := queue.NewNSQConsumer(*nsqlookupAddr, queue.CalculationStatusTopic, serviceNameChannel)
 	if err != nil {
 		log.Fatal(err)
 	}

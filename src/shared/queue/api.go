@@ -2,15 +2,7 @@
 // calculatoer status queue.
 package queue
 
-// Topic type passed to the queue.
+// Topic available in nsq.
 const (
-	CalcStatusTopic string = "calc_status"
+	CalculationStatusTopic string = "calc_status"
 )
-
-// Calculation message IDs
-const (
-	CalcStartedID  string = "calc_status_started"
-	CalcProgressID string = "calc_status_progress"
-	CalcEndedID    string = "calc_status_ended"
-)
-

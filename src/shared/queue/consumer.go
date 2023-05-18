@@ -60,15 +60,10 @@ func (c *NsqQueueConsumer) Stop() {
 
 // Callback types
 type callback[T Enqueable] func(*T, error) error
-type CalcStartedCallback func(*CalcStartedMessage, error) error
 type CalcProgressCallback func(*CalcProgressMessage, error) error
 type CalcEndedCallback func(*CalcEndedMessage, error) error
 
 /* Add handlers of a specific message types. Panics if called after Start(). */
-
-func (c *NsqQueueConsumer) AddCalcStartedHandler(fn CalcStartedCallback) {
-	addCallback(fn, c) // Necessary workaround to use generics with method call on c.
-}
 
 func (c *NsqQueueConsumer) AddCalcProgressHandler(fn CalcProgressCallback) {
 	addCallback(fn, c)

@@ -4,7 +4,7 @@ Microservice based playground with an equation-calculator theme. **This project 
 ## So what is it?
 - `server` is a service that exposes a GRPC API to solve an equation.
 - `cli` is a tool to call this API to solve some equations.
-- `shared/queue` is a NSQ queue implemented as a shared Go module
+- `shared/queue` is a NSQ(New Simple Queue) queue implemented as a shared Go module
 
 The protos are placed outside the project to simulate a realistic setup.
 
@@ -75,12 +75,12 @@ sequenceDiagram
     loop calc in progress
         cal--)nsq: SendCalcProgress(id)
     end
-    cal--)nsq: SendCalcFinished(id)
+    cal--)nsq: SendCalcEnded(id)
 
     Note over nsq, cli: Client listens for messages on topics
 
     cli-)nsq: listen CalcProgress()
-    cli-)nsq: listen CalcFinished()
+    cli-)nsq: listen CalcEnded()
 ```
 
 ## Creating a new calculation in the viewer
