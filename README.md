@@ -1,7 +1,7 @@
 # Microservice Madness
-Microservice based playground with an equation-calculator theme. **This project in essence does nothing and cannot be used for anyting other than learning.**
+Microservice based playground with an equation-calculator theme. **This project does nothing and is not used for anyting other than learning.**
 
-## What is this?
+## So what is it?
 - `server` is a service that exposes a GRPC API to solve an equation.
 - `cli` is a tool to call this API to solve some equations.
 - `shared/queue` is a NSQ queue implemented as a shared Go module
@@ -29,7 +29,8 @@ command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 #--broadcast-address=127.0.
 # Details
 Here you'll find drawings and models in details.
 
-### Component diagram of system architecture
+## Overall system architecture
+Component diagram showing the essential modules and their general interaction.
 ```mermaid
 flowchart LR
     subgraph viewer
@@ -57,9 +58,33 @@ flowchart LR
     router--sync-->grpc
 ```
 
+## Interaction between calculator and nsq
+Sequence diagram showing message flow between the calculator and the queue when calculations are created
+Most noteworthy is that the calculator takes requests on a GRPC endpoint but returns results asynchronously over nsq.
+```mermaid
+sequenceDiagram
+    participant cli as Client
+    participant cal as Calculator
+    participant nsq as NSQ
 
-### Sequence diagram of creating a new calculation
-How the web viewer interacts with the backend when a new calculation is created.
+    cli-->>cal: RunCalculation(id)
+    cal-->>cli: CalcRecieved(id)
+    Note over cal: Calculator maintains state of calculations
+
+    %%cal--)nsq: SendCalcStarted(id)
+    loop calc in progress
+        cal--)nsq: SendCalcProgress(id)
+    end
+    cal--)nsq: SendCalcFinished(id)
+
+    Note over nsq, cli: Client listens for messages on topics
+
+    cli-)nsq: listen CalcProgress()
+    cli-)nsq: listen CalcFinished()
+```
+
+## Creating a new calculation in the viewer
+Sequence diagram of how the web viewer interacts with the backend when a new calculation is created.
 ```mermaid
 sequenceDiagram
     participant B as Browser
