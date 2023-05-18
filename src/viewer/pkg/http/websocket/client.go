@@ -6,6 +6,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
 
@@ -25,6 +26,7 @@ var (
 type cleanupFn func(*client)
 
 type client struct {
+	id         string
 	connection *websocket.Conn
 	router     *EventRouter
 	cleanupFn  cleanupFn
@@ -35,6 +37,7 @@ type client struct {
 // itself from the manager when it is done working.
 func newClient(conn *websocket.Conn, router *EventRouter, cleanFn cleanupFn) *client {
 	c := &client{
+		id:         uuid.NewString(),
 		connection: conn,
 		router:     router,
 		cleanupFn:  cleanFn,
