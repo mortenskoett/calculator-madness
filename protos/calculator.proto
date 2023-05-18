@@ -8,15 +8,23 @@ service CalculationService {
   rpc Run(RunCalculationRequest) returns (RunCalculationResponse) {}
 }
 
-message RunCalculationRequest {
-  string equation = 1;
+message Equation {
+  string id = 1;
+  string value = 2;
 }
 
+// Request to start a calculation.
+message RunCalculationRequest {
+  string client_id = 1;
+  Equation equation = 2;
+}
+
+// Response to signal a requst has been successfully recieved.
 message RunCalculationResponse {
-  double result = 1;
+  optional Error error = 1;
 }
 
 message Error {
-	string code = 1;
-	string message = 2;
+  string code = 1;
+  string message = 2;
 }
