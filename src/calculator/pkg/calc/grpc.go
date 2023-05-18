@@ -68,8 +68,9 @@ func (s *CalculationGRPCServer) Serve() error {
 /* GRPC Protobuf end points */
 
 func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	log.Println("Request received to Run equation", calculationRequest.Equation)
+	log.Printf("request received to Run equation: %+v", calculationRequest.Equation)
 
+	// Fix this
 	startMsg, err := queue.NewCalcStartedMessage()
 	if err != nil {
 		return nil, err
@@ -79,35 +80,32 @@ func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest 
 	if err != nil {
 		return nil, err
 	}
+	log.Println("new calculation message sent to queue: clientId:", calculationRequest.ClientId)
 
-	eq := Equation{Value: calculationRequest.Equation}
-
-	result, err := Solve(eq)
-
+	result, err := Solve(calculationRequest.Equation)
 	if err != nil {
 		return nil, fmt.Errorf("failed to solve equation: %w", err)
 	}
 
-	// Artifical work
+	// progMsg, err := queue.NewCalcProgressMessage(startMsg.CalculationID)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// err = s.queueProducer.Publish(progMsg)
+	// if err != nil {
+	// return nil, err
+	// }
+
+	// TODO: Artifical work
+	// TODO: Do someting to emulate long processing time here here
 	time.Sleep(time.Duration(result) * time.Second)
-
-	progMsg, err := queue.NewCalcProgressMessage(startMsg.CalculationID)
-	if err != nil {
-		return nil, err
-	}
-
-	err = s.queueProducer.Publish(progMsg)
-	if err != nil {
-		return nil, err
-	}
-
-	// More artifical work
-	time.Sleep(2 * time.Second)
 
 	endMsg, err := queue.NewCalcEndedMessage(startMsg.CalculationID)
 	if err != nil {
 		return nil, err
 	}
+	log.Println("end calculation message sent to queue: clientId:", calculationRequest.ClientId)
 
 	err = s.queueProducer.Publish(endMsg)
 	if err != nil {
@@ -115,6 +113,6 @@ func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest 
 	}
 
 	return &pb.RunCalculationResponse{
-		Result: result,
+		Error: nil,
 	}, nil
 }

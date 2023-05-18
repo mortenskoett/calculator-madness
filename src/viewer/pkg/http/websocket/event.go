@@ -101,7 +101,26 @@ func (r *EventRouter) handleStartCalculation(ev *Event, c *client) error {
 		Contents: bs,
 	}
 
+	// Send event back to UI using websocket.
 	c.send(&outEvent)
+
+	// Send equation to calculation backend.
+	calcresp, err := r.calculator.Run(context.TODO(), &pb.RunCalculationRequest{
+		ClientId: c.id,
+		Equation: &pb.Equation{
+			Id:    resp.ID,
+			Value: req.Equation,
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("failed to send calculation request: %w", err)
+	}
+
+	e := calcresp.Error
+	if e != nil {
+		return fmt.Errorf("failed to process calculation request: id: %v: message: %v", e.GetCode(), e.GetMessage())
+	}
+	log.Println("router successfully sent calculation request to backend")
 
 	return nil
 }

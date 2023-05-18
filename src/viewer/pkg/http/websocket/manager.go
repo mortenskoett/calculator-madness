@@ -55,7 +55,6 @@ func (m *Manager) add(c *client) {
 func (m *Manager) remove(c *client) {
 	m.Lock()
 	defer m.Unlock()
-
 	if _, ok := m.clients[c.id]; ok {
 		c.connection.Close()
 		delete(m.clients, c.id)
