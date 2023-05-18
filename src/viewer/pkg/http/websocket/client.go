@@ -130,7 +130,7 @@ func (c *client) writeMessages() {
 		case <-pingTicker.C:
 			log.Println("ping sent")
 			if err := c.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				log.Println("failed to send ping message: ", err)
+				log.Printf("failed to send ping message to client %v: %v",c.id, err)
 				return
 			}
 		}

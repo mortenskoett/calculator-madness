@@ -34,7 +34,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      SERVER_PORT: ":8000"
+      SERVER_PORT: "8000"
       NSQ_ADDR: "nsqd:4150"
 
   viewer-cli:
@@ -52,9 +52,12 @@ services:
       context: ./src
       dockerfile: viewer/Dockerfile.web
     depends_on:
+      - calculator
       - nsqd
       - nsqlookupd
     ports:
       - "3000:3000"
     environment:
       NSQLOOKUPD_ADDR: "nsqlookupd:4161"
+      CALCULATOR_ADDR: "calculator:8000"
+

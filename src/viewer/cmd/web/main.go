@@ -23,8 +23,7 @@ const (
 var (
 	nsqlookupAddr  = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
 	port           = flag.String("port", env.GetEnvVarOrDefault("PORT", "3000"), "Port on which the UI will be served")
-	calcServerPort = flag.String("calculator-port", "8000", "Port of Calculator server")
-	calcServerAddr = flag.String("calculator-addr", "localhost", "Address of Calculator server")
+	calcServerAddr = flag.String("calculator-addr", env.GetEnvVarOrDefault("CALCULATOR_ADDR", "127.0.0.1:8000"), "Port of Calculator server")
 )
 
 func main() {
@@ -38,8 +37,7 @@ func main() {
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 	}
-	calcServerAddress := *calcServerAddr + ":" + *calcServerPort
-	conn, err := grpc.Dial(calcServerAddress, opts...)
+	conn, err := grpc.Dial(*calcServerAddr, opts...)
 	if err != nil {
 		log.Fatal("failed to create grpc conn:", err)
 	}

@@ -38,7 +38,7 @@ type CalculationGRPCServer struct {
 }
 
 func NewGRPCServer(config CalcServerConfig, producer QueueProducer) (*CalculationGRPCServer, error) {
-	listener, err := net.Listen("tcp", config.Port)
+	listener, err := net.Listen("tcp", ":"+config.Port)
 	if err != nil {
 		log.Fatalf("failed to create listener: %v", err)
 	}
@@ -99,6 +99,7 @@ func (s *CalculationGRPCServer) Run(context context.Context, calculationRequest 
 
 	// TODO: Artifical work
 	// TODO: Do someting to emulate long processing time here here
+	log.Println("sleeping...")
 	time.Sleep(time.Duration(result) * time.Second)
 
 	endMsg, err := queue.NewCalcEndedMessage(startMsg.CalculationID)
