@@ -37,15 +37,15 @@ services:
       SERVER_PORT: "8000"
       NSQ_ADDR: "nsqd:4150"
 
-  viewer-cli:
-    build:
-      context: ./src
-      dockerfile: viewer/Dockerfile.cli
-    depends_on:
-      - nsqd
-      - nsqlookupd
-    environment:
-      NSQLOOKUPD_ADDR: "nsqlookupd:4161"
+  # viewer-cli:
+  #   build:
+  #     context: ./src
+  #     dockerfile: viewer/Dockerfile.cli
+  #   depends_on:
+  #     - nsqd
+  #     - nsqlookupd
+  #   environment:
+  #     NSQLOOKUPD_ADDR: "nsqlookupd:4161"
 
   viewer-web:
     build:

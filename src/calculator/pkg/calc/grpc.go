@@ -68,7 +68,7 @@ func (s *CalculationGRPCServer) Serve() error {
 /* GRPC Protobuf end points */
 
 func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	log.Printf("request received to Run equation: %+v", calcRequest.Equation)
+	log.Printf("request received to run equation: %+v", calcRequest.Equation)
 
 	// // Fix this
 	// startMsg, err := queue.NewCalcStartedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id)
@@ -101,7 +101,7 @@ func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.Run
 	log.Println("sleeping...")
 	time.Sleep(time.Duration(result) * time.Second)
 
-	endMsg, err := queue.NewCalcEndedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id)
+	endMsg, err := queue.NewCalcEndedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id, result)
 	if err != nil {
 		return nil, err
 	}

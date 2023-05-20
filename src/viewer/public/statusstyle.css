@@ -40,14 +40,20 @@ h5 {
   display:flex;
 }
 
-.calc-wrapper .progress {
-  display:flex;
+.calc-wrapper .progress-bar {
+  display: flex;
+  flex-direction: row;
   margin-left:auto;
 }
 
 .result-elem img {
   display:flex;
   margin: 0 10px 0 0;
+}
+
+.calc-result-div {
+  display: flex;
+  flex-direction: row;
 }
 
 #ongoing img {

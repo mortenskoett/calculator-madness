@@ -15,14 +15,6 @@ type Progress struct {
 	Outof   int `json:"outof"`
 }
 
-type Calculation struct {
-	ID          string    `json:"id"`
-	Equation    string    `json:"equation"`
-	CreatedTime time.Time `json:"created_time"`
-	Progress    Progress  `json:"progress"`
-	Result      string    `json:"result"`
-}
-
 // Request from UI.
 type StartCalculationRequest struct {
 	Equation string `json:"equation"`
@@ -30,5 +22,14 @@ type StartCalculationRequest struct {
 
 // Response to UI.
 type StartCalculationResponse struct {
-	Calculation
+	ID          string    `json:"id"`
+	Equation    string    `json:"equation"`
+	CreatedTime time.Time `json:"created_time"`
+	Progress    Progress  `json:"progress"`
+}
+
+// Response to UI.
+type EndCalculationResponse struct {
+	ID        string    `json:"id"`
+	Result    float64   `json:"result"`
 }

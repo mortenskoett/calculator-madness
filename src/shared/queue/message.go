@@ -52,9 +52,10 @@ type CalcEndedMessage struct {
 	*MessageMetadata
 	ClientID      string
 	CalculationID string
+	Result        float64
 }
 
-func NewCalcEndedMessage(clientID string, calcID string) (*CalcEndedMessage, error) {
+func NewCalcEndedMessage(clientID string, calcID string, result float64) (*CalcEndedMessage, error) {
 	mesg := CalcEndedMessage{
 		MessageMetadata: &MessageMetadata{
 			MessageID:   uuid.NewString(),
@@ -62,6 +63,7 @@ func NewCalcEndedMessage(clientID string, calcID string) (*CalcEndedMessage, err
 		},
 		ClientID:      clientID,
 		CalculationID: calcID,
+		Result:        result,
 	}
 	return &mesg, nil
 }

@@ -19,8 +19,8 @@ import (
 // reading a message.
 
 var (
-	readDeadline = 30 * time.Second        // If no ping happens before deadline the socket is closed
-	pingInterval = (readDeadline * 9) / 10 // Calculate 90% without decimals.
+	readDeadline = 30 * time.Second        // If no ping happens before deadline the socket is closed.
+	pingInterval = (readDeadline * 8) / 10 // Calculate percentage of readDeadline.
 )
 
 type cleanupFn func(*client)
@@ -71,35 +71,30 @@ func (c *client) send(ev *Event) {
 func (c *client) readMessages() {
 	defer c.cleanupFn(c)
 
-	// To detect a dead client.
-	if err := c.setReadDeadline(readDeadline); err != nil {
-		log.Println(err)
-		return
-	}
-
 	for {
 		_, bs, err := c.connection.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err,
 				websocket.CloseGoingAway,
 				websocket.CloseAbnormalClosure) {
-				log.Printf("error reading message: %v", err)
+				log.Printf("error reading incoming ws message: %v", err)
 			}
-			break
+			continue
 		}
 
 		var req Event
 
 		if err := json.Unmarshal(bs, &req); err != nil {
-			log.Println("failed unmarshal incoming event:", string(bs))
-			break
+			log.Println("failed to unmarshal incoming ws event:", string(bs))
+			continue
 		}
 
-		if err := c.router.route(&req, c); err != nil {
-			log.Println("failed to route incoming event:", err)
-			break
-		}
-
+		// Route events in separate goroutines.
+		go func() {
+			if err := c.router.route(&req, c); err != nil {
+				log.Println("failed to route incoming ws event:", err)
+			}
+		}()
 	}
 }
 
@@ -130,7 +125,7 @@ func (c *client) writeMessages() {
 		case <-pingTicker.C:
 			log.Println("ping sent")
 			if err := c.connection.WriteMessage(websocket.PingMessage, []byte{}); err != nil {
-				log.Printf("failed to send ping message to client %v: %v",c.id, err)
+				log.Printf("failed to send ping message to client %v: %v", c.id, err)
 				return
 			}
 		}

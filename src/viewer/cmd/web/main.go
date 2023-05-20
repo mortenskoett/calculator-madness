@@ -54,7 +54,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer nsqconsumer.Stop()
-	nsqconsumer.AddCalcProgressHandler(wsmanager.NSQCalcProgressHandler)
+// 	// TODO: Implement handling of progress events
+	// nsqconsumer.AddCalcProgressHandler(wsmanager.NSQCalcProgressHandler)
 	nsqconsumer.AddCalcEndedHandler(wsmanager.NSQCalcEndedHandler)
 	go nsqconsumer.Start(ctx)
 

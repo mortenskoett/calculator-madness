@@ -21,7 +21,9 @@ const (
 	eventNewCalculation = "new_calculation"
 
 	// eventProgressCalculation = "progress_calculation"
-	// eventFinishCalculation   = "finish_calculation"
+
+	// When a calculation ended is sent back to UI.
+	eventEndedCalculation = "ended_calculation"
 )
 
 const (
@@ -79,15 +81,12 @@ func (r *EventRouter) handleStartCalculation(ev *Event, c *client) error {
 	}
 
 	resp := StartCalculationResponse{
-		Calculation: Calculation{
-			ID:          uuid.NewString(),
-			CreatedTime: time.Now(),
-			Equation:    req.Equation,
-			Progress: Progress{
-				Current: 0,
-				Outof:   initialStepCount,
-			},
-			Result: "",
+		ID:          uuid.NewString(),
+		CreatedTime: time.Now(),
+		Equation:    req.Equation,
+		Progress: Progress{
+			Current: 0,
+			Outof:   initialStepCount,
 		},
 	}
 
