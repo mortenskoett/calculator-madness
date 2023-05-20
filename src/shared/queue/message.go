@@ -7,77 +7,68 @@ import (
 )
 
 // Additional metadata of the message
+type Progress struct {
+	Current int
+	Outof   int
+}
+
+type Status struct {
+	progress Progress
+}
+
 type MessageMetadata struct {
 	MessageID   string
 	CreatedTime time.Time
 }
 
-/* Calculation started message */
-
-// Specific message designated a calculation has started
-type CalcStartedMessage struct {
-	*MessageMetadata
-	CalculationID uuid.UUID
-}
-
-func NewCalcStartedMessage() (*CalcStartedMessage, error) {
-	mesg := CalcStartedMessage{
-		MessageMetadata: &MessageMetadata{
-			MessageID:   CalcStartedID,
-			CreatedTime: time.Now(),
-		},
-		CalculationID: uuid.New(),
-	}
-	return &mesg, nil
-}
-
-// topic implements the Enquable interface
-func (m CalcStartedMessage) topic() string {
-	return CalcStatusTopic
-}
-
-/* Calculation progress message */
-
 // Specific message designated a calculation has started
 type CalcProgressMessage struct {
 	*MessageMetadata
-	CalculationID uuid.UUID
+	ClientID      string
+	CalculationID string
+	Status        *Status
 }
 
-func NewCalcProgressMessage(id uuid.UUID) (*CalcProgressMessage, error) {
+func NewCalcProgressMessage(clientID string, calcID string, status *Status) (*CalcProgressMessage, error) {
 	mesg := CalcProgressMessage{
 		MessageMetadata: &MessageMetadata{
-			MessageID:   CalcProgressID,
+			MessageID:   uuid.NewString(),
 			CreatedTime: time.Now(),
 		},
-		CalculationID: id,
+		ClientID:      clientID,
+		CalculationID: calcID,
+		Status:        status,
 	}
 	return &mesg, nil
 }
 
 // topic implements the Enquable interface
 func (m CalcProgressMessage) topic() string {
-	return CalcStatusTopic
+	return CalculationStatusTopic
 }
 
 // Specific message designated a calculation has ended
 type CalcEndedMessage struct {
 	*MessageMetadata
-	CalculationID uuid.UUID
+	ClientID      string
+	CalculationID string
+	Result        float64
 }
 
-func NewCalcEndedMessage(id uuid.UUID) (*CalcEndedMessage, error) {
+func NewCalcEndedMessage(clientID string, calcID string, result float64) (*CalcEndedMessage, error) {
 	mesg := CalcEndedMessage{
 		MessageMetadata: &MessageMetadata{
-			MessageID:   CalcEndedID,
+			MessageID:   uuid.NewString(),
 			CreatedTime: time.Now(),
 		},
-		CalculationID: id,
+		ClientID:      clientID,
+		CalculationID: calcID,
+		Result:        result,
 	}
 	return &mesg, nil
 }
 
 // topic implements the Enquable interface
 func (m CalcEndedMessage) topic() string {
-	return CalcStatusTopic
+	return CalculationStatusTopic
 }

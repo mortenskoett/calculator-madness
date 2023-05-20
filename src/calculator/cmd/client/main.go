@@ -40,10 +40,20 @@ func main() {
 
 	client := pb.NewCalculationServiceClient(conn)
 
-	result, err := client.Run(context.Background(), &pb.RunCalculationRequest{Equation: *equation})
+	resp, err := client.Run(context.Background(), &pb.RunCalculationRequest{
+		ClientId: "calculator-cli-client-id",
+		Equation: &pb.Equation{
+			Id:    "calculator-cli-equation-id",
+			Value: *equation,
+		},
+	})
 	if err != nil {
-		log.Println("an error occurred while solving the equation", err)
+		log.Fatal("failed to send calculation request:", err)
 	}
 
-	log.Println(*equation, "=", result.Result)
+	if resp.Error != nil {
+		log.Fatalf("an error occurred while solving the equation: %+v", resp.Error)
+	}
+
+	log.Println("equation successfully sent to calculation backend")
 }

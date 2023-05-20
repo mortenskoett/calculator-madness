@@ -1,0 +1,43 @@
+{{define "contents"}}
+
+<div class="calc-wrapper">
+    <h5> Ongoing </h5>
+    <div id="ongoing">
+    </div>
+
+    <h5> Ended </h5>
+    <div id="ended">
+    </div>
+    <div></div>
+</div>
+{{end}}
+
+        <!-- {{range .Calculations}} -->
+        <!--     {{if (lt .Progress.Current .Progress.Outof)}} -->
+        <!--         <div class="elem"> -->
+        <!--             <div class="result"> -->
+        <!--                 {{.Equation}} = {{.Result}} -->
+        <!--             </div> -->
+
+        <!--             <div class="progress"> -->
+        <!--                 <img src="/public/images/cog.png" alt="Cog icon" width="20" height="20"> -->
+        <!--                 <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress> -->
+        <!--             </div> -->
+        <!--         </div> -->
+        <!--     {{end}} -->
+        <!-- {{end}} -->
+
+        <!-- {{range .Calculations}} -->
+        <!--     {{if (ge .Progress.Current .Progress.Outof)}} -->
+        <!--         <div class="elem"> -->
+        <!--             <div class="result"> -->
+        <!--                 {{.Equation}} = {{.Result}} -->
+        <!--             </div> -->
+
+        <!--             <div class="progress"> -->
+        <!--                 <img src="/public/images/done.png" alt="Done icon" width="20" height="20"> -->
+        <!--                 <progress id="progress" value="{{.Progress.Current}}" max="{{.Progress.Outof}}"></progress> -->
+        <!--             </div> -->
+        <!--         </div> -->
+        <!--     {{end}} -->
+        <!-- {{end}} -->

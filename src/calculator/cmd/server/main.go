@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	calcServerPort = flag.String("calc-server-port", getEnvVarOrDefault("SERVER_PORT", ":8000"), "Port of calc grpc server")
+	calcServerPort = flag.String("calc-server-port", getEnvVarOrDefault("SERVER_PORT", "8000"), "Port of calc grpc server")
 	nsqAddr        = flag.String("nsq-addr", getEnvVarOrDefault("NSQ_ADDR", "127.0.0.1:4151"), "Address of nsq server with port")
 	help           = flag.Bool("help", false, "Show this help")
 )

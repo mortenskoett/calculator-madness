@@ -1,0 +1,33 @@
+# syntax=docker/dockerfile:1.4
+
+## Build
+FROM golang:1.20.1-buster AS build
+
+### Copy over shared code
+WORKDIR /app
+COPY --from=calculator-shared-queue ./app ./
+
+WORKDIR /app/viewer
+COPY ./viewer/go.mod ./
+COPY ./viewer/go.sum ./
+
+RUN go mod download
+
+COPY ./viewer/api ./api
+COPY ./viewer/public/ ./public
+COPY ./viewer/cmd/web ./cmd/web
+COPY ./viewer/pkg ./pkg
+
+RUN GOOS=linux CGO_ENABLED=0 go build cmd/web/main.go
+
+## Prod
+FROM alpine:latest
+LABEL maintainer="mortenskoett"
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /
+
+COPY --from=build /app/viewer/main ./
+COPY --from=build /app/viewer/public ./public
+
+ENTRYPOINT ["./main"]

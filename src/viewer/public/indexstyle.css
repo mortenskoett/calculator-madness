@@ -1,0 +1,94 @@
+/* Variables */
+:root {
+  --color-dark: #2f2f2f;
+  --color-light: #fff;
+  --color-brand: #57bd84;
+  --big-font: 17px;
+  --primary-margin: 8px;
+}
+
+/* Global */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+}
+
+.navbar {
+  overflow: hidden;
+  display:flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #e0dacd;
+  font-size: var(--big-font);
+}
+.navbar img {
+  margin: var(--primary-margin);
+  align-items:center;
+}
+
+.navbar .left {
+  flex: 2;
+  display: flex;
+  align-items:center;
+}
+
+.navbar .left a {
+  color: black;
+  text-decoration: none;
+  font-size: var(--big-font);
+}
+
+.navbar .center {
+  flex: 1;
+  display: flex;
+  align-items:center;
+  margin: var(--primary-margin);
+}
+
+.navbar .center input[type=text] {
+  flex:1;
+  padding:8px;
+  border: none;
+  border-radius: 5px 0px 0px 5px;
+  font-size: var(--big-font);
+}
+
+.navbar .center #eq-btn {
+  padding:8px;
+  font-size: var(--big-font);
+  cursor: pointer;
+  text-decoration: none;
+  color: #fff;
+  background-color: #4CAF50;
+  border: none;
+  border-radius: 0px 5px 5px 0px;
+}
+
+.navbar #eq-btn:hover {background-color: #3e8e41}
+
+.navbar #eq-btn:active {
+  background-color: #3e8e41;
+  transform: translateX(4px);
+}
+
+/* When the screen is less than k px wide, stack the links and the search field vertically instead
+ * of horizontally */
+@media screen and (max-width: 500px) {
+  .navbar a, .navbar input[type=text] {
+    float: none;
+    display: block;
+    text-align: left;
+    width: 100%;
+    margin: 0;
+  }
+  .navbar input[type=text] {
+    border: 1px solid #ccc;
+  }
+  .navbar button {
+      position: absolute;
+      margin-top: -100px;
+      margin-left: -100px;
+  }
+}

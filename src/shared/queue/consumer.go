@@ -1,20 +1,18 @@
 package queue
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/nsqio/go-nsq"
 	"github.com/pkg/errors"
 )
 
 type NsqQueueConsumer struct {
-	Topic         string
-	Channel       string
+	topic         string
+	channel       string
 	nsqlookupAddr string
 	consumer      *nsq.Consumer
 }
@@ -30,15 +28,15 @@ func NewNSQConsumer(nsqlookupdAddr, topic, channel string) (*NsqQueueConsumer, e
 	}
 
 	return &NsqQueueConsumer{
-		Topic:         topic,
-		Channel:       channel,
+		topic:         topic,
+		channel:       channel,
 		nsqlookupAddr: nsqlookupdAddr,
 		consumer:      consumer,
 	}, nil
 }
 
-// Start listening for incoming messages on the set topic.
-func (c *NsqQueueConsumer) Start() {
+// Start listening for incoming messages on the set topic. Blocking call.
+func (c *NsqQueueConsumer) Start(ctx context.Context) {
 	log.Println("connecting to nsqlookupd")
 	// Use nsqlookupd to discover nsqd instances.
 	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
@@ -47,29 +45,25 @@ func (c *NsqQueueConsumer) Start() {
 		log.Fatal(err)
 	}
 
-	// wait for signal to exit
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	<-sigChan
+	// Handle shutdown using context
+	<-ctx.Done()
+	log.Println("stopping nsq consumer: cancelled by context.")
+	return
 }
 
 // Should be a deferred call to stop the consumer gracefully.
 func (c *NsqQueueConsumer) Stop() {
 	// Gracefully stop the consumer.
 	c.consumer.Stop()
+	log.Println("nsq consumer stopped")
 }
 
 // Callback types
 type callback[T Enqueable] func(*T, error) error
-type CalcStartedCallback func(*CalcStartedMessage, error) error
 type CalcProgressCallback func(*CalcProgressMessage, error) error
 type CalcEndedCallback func(*CalcEndedMessage, error) error
 
 /* Add handlers of a specific message types. Panics if called after Start(). */
-
-func (c *NsqQueueConsumer) AddCalcStartedHandler(fn CalcStartedCallback) {
-	addCallback(fn, c) // Necessary workaround to use generics with method call on c.
-}
 
 func (c *NsqQueueConsumer) AddCalcProgressHandler(fn CalcProgressCallback) {
 	addCallback(fn, c)
