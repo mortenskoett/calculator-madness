@@ -1,11 +1,11 @@
 package main
 
 import (
+	"calculator/pkg/api"
 	"calculator/pkg/calc"
 	"flag"
 	"log"
 	"os"
-	"shared/queue"
 )
 
 var (
@@ -15,34 +15,28 @@ var (
 )
 
 func main() {
-	log.Println("starting calculator GRPC protobuf service")
+	log.Println("starting calculator grpc protobuf service")
 	flag.Parse()
 	if *help {
 		flag.PrintDefaults()
 		return
 	}
 
-	// Create queue handler
-	producer,err := queue.NewNSQProducer(*nsqAddr)
+	nsqproducer, err := api.NewNSQProducer(*nsqAddr)
 	if err != nil {
-		log.Fatal("failed to create NSQ producer: ", err)
+		log.Fatal(err)
 	}
-	defer producer.Stop()
+	defer nsqproducer.Stop()
 
-	log.Println("nsq producer client created OK")
-
-	// Create GRPC endpoint
-	serverConfig := calc.CalcServerConfig{Port: *calcServerPort}
-
-	// TODO: Separate creation of server from biz logic. E.g. give server to calc service ish.
-	// Move/register grpc request handles on the server here
-	calcServer, err := calc.NewGRPCServer(serverConfig, producer)
+	calculationService := calc.NewCalculatorService(nsqproducer)
+	calcServer, err := api.NewGRPCServer(*calcServerPort, calculationService)
 	if err != nil {
 		log.Fatalf("failed to create calc server: %v", err)
 	}
 
+	log.Println("serving on port", *calcServerPort)
 	if err := calcServer.Serve(); err != nil {
-		log.Fatalf("failed to serve: %v", err)
+		log.Fatalf("grpc server failed: %v", err)
 	}
 }
 

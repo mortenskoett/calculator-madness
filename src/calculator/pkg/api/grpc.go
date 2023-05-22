@@ -1,27 +1,21 @@
 // Contains the grpc server and endpoint of the calculation server
-package calc
+package api
 
 import (
 	"calculator/api/pb"
+	"calculator/pkg/calc"
 	"context"
 	"fmt"
 	"log"
 	"net"
 	"shared/queue"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
 
-// TODO: Either use or throw away
-// type CalculationServer interface {
-// 	Serve() error
-// Run(context context.Context, calculationRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error)
-// }
-
-type CalcServerConfig struct {
-	Port string
+type CalculationService interface {
+	Enqueue(eq *calc.Equation) error
 }
 
 type QueueProducer interface {
@@ -29,16 +23,20 @@ type QueueProducer interface {
 	Stop()
 }
 
+type CalcServerConfig struct {
+	Port string
+}
+
 // CalculationGRPCServer implements CalculationServiceServer interface
 type CalculationGRPCServer struct {
 	pb.UnimplementedCalculationServiceServer // for forward compat
 	server                                   *grpc.Server
 	listener                                 net.Listener
-	queueProducer                            QueueProducer
+	calcService                              CalculationService
 }
 
-func NewGRPCServer(config CalcServerConfig, producer QueueProducer) (*CalculationGRPCServer, error) {
-	listener, err := net.Listen("tcp", ":"+config.Port)
+func NewGRPCServer(port string, calcService CalculationService) (*CalculationGRPCServer, error) {
+	listener, err := net.Listen("tcp", ":"+port)
 	if err != nil {
 		log.Fatalf("failed to create listener: %v", err)
 	}
@@ -49,7 +47,7 @@ func NewGRPCServer(config CalcServerConfig, producer QueueProducer) (*Calculatio
 		UnimplementedCalculationServiceServer: pb.UnimplementedCalculationServiceServer{},
 		server:                                server,
 		listener:                              listener,
-		queueProducer:                         producer,
+		calcService:                           calcService,
 	}
 
 	// Register endpoint
@@ -67,8 +65,8 @@ func (s *CalculationGRPCServer) Serve() error {
 
 /* GRPC Protobuf end points */
 
-func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
-	log.Printf("request received to run equation: %+v", calcRequest.Equation)
+func (s *CalculationGRPCServer) Run(context context.Context, req *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
+	log.Printf("request received to run equation: %+v", req.Equation.Id)
 
 	// // Fix this
 	// startMsg, err := queue.NewCalcStartedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id)
@@ -82,9 +80,10 @@ func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.Run
 	// }
 	// log.Println("new calculation message sent to queue: clientId:", calcRequest.ClientId)
 
-	result, err := Solve(calcRequest.Equation)
+	equation := &calc.Equation{Value: req.Equation.Value}
+	err := s.calcService.Enqueue(equation)
 	if err != nil {
-		return nil, fmt.Errorf("failed to solve equation: %w", err)
+		return nil, fmt.Errorf("failed to enqueue equation: %w", err)
 	}
 
 	// progMsg, err := queue.NewCalcProgressMessage(startMsg.CalculationID)
@@ -97,23 +96,6 @@ func (s *CalculationGRPCServer) Run(context context.Context, calcRequest *pb.Run
 	// return nil, err
 	// }
 
-	// TODO: Artifical work: Do someting to emulate long processing time
-	log.Println("sleeping...")
-	time.Sleep(time.Duration(result) * time.Second)
-
-	endMsg, err := queue.NewCalcEndedMessage(calcRequest.GetClientId(), calcRequest.GetEquation().Id, result)
-	if err != nil {
-		return nil, err
-	}
-	log.Println("end calculation message sent to queue: clientId:", calcRequest.ClientId)
-
-	err = s.queueProducer.Publish(endMsg)
-	if err != nil {
-		return nil, err
-	}
-
 	// TODO: Make the above stuff run in a goroutine so that we don't wait long for this return
-	return &pb.RunCalculationResponse{
-		Error: nil,
-	}, nil
+	return &pb.RunCalculationResponse{}, nil
 }

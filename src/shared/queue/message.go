@@ -13,7 +13,7 @@ type Progress struct {
 }
 
 type Status struct {
-	progress Progress
+	Progress Progress
 }
 
 type MessageMetadata struct {
