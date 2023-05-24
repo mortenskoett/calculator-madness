@@ -10,6 +10,11 @@ type Equation struct {
 	Expression string
 }
 
+type EquationResult struct {
+	Equation *Equation
+	Result   float64
+}
+
 type Progress struct {
 	Current int
 	Outof   int
@@ -23,6 +28,11 @@ type ProgressEvent struct {
 type EndedEvent struct {
 	*ClientInfo
 	Result float64
+}
+
+type EquationProcessor interface {
+	Add(*Equation)
+	Results() <-chan *EquationResult
 }
 
 type ResultNotifier interface {
