@@ -15,14 +15,15 @@ type workload struct {
 	progress *Progress
 }
 
-// Processor processes an equation and returns the result over a channel.
-type Processor struct {
+type equationProcessor struct {
 	results chan *EquationResult // Receive processed equation results on this channel.
 	intake  chan *workload       // Equations waiting to be processed are placed here.
 }
 
-func NewProcessor(maxConcurrent int, maxChannelSize int) *Processor {
-	h := &Processor{
+// Create a new instance of the equationProcessor to process equations concurrently and returns the
+// results over a channel.
+func NewEquationProcessor(maxConcurrent int, maxChannelSize int) *equationProcessor {
+	h := &equationProcessor{
 		results: make(chan *EquationResult, maxChannelSize),
 		intake:  make(chan *workload, maxChannelSize),
 	}
@@ -35,7 +36,7 @@ func NewProcessor(maxConcurrent int, maxChannelSize int) *Processor {
 }
 
 // Add an equation to be processed.
-func (h *Processor) Add(eq *Equation) {
+func (h *equationProcessor) Add(eq *Equation) {
 	h.intake <- &workload{
 		ticker:   time.NewTicker(progressIntervalSecs * time.Second),
 		equation: eq,
@@ -46,12 +47,12 @@ func (h *Processor) Add(eq *Equation) {
 	}
 }
 
-func (h *Processor) Results() <-chan *EquationResult {
+func (h *equationProcessor) Results() <-chan *EquationResult {
 	return h.results
 }
 
 // Creates a worker to process Equations. Call as goroutine.
-func (h *Processor) createWorker(in <-chan *workload, out chan<- *EquationResult) {
+func (h *equationProcessor) createWorker(in <-chan *workload, out chan<- *EquationResult) {
 	for {
 		select {
 		case w := <-in:

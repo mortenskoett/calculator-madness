@@ -50,9 +50,11 @@ func NewCalculatorService(notifier ResultNotifier) *calculatorService {
 	}
 }
 
-// Enqueue enqueues an equation for solving. The result is returned through the ResultNotifier.
-func (c *calculatorService) Enqueue(eq *Equation) error {
+// Solve enqueues an equation for solving. The result is returned through the ResultNotifier.
+func (c *calculatorService) Solve(eq *Equation) error {
 	res := float64(len(eq.Expression))
+
+	// proc := NewEquationProcessor(20, 100)
 
 	endEvent := EndedEvent{
 		ClientInfo: &ClientInfo{

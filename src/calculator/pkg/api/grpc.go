@@ -15,7 +15,7 @@ import (
 )
 
 type CalculationService interface {
-	Enqueue(eq *calc.Equation) error
+	Solve(eq *calc.Equation) error
 }
 
 type QueueProducer interface {
@@ -68,7 +68,7 @@ func (s *CalculationGRPCServer) Serve() error {
 func (s *CalculationGRPCServer) Run(context context.Context, req *pb.RunCalculationRequest) (*pb.RunCalculationResponse, error) {
 	log.Printf("request received to run equation: %+v", req.Equation.Id)
 
-	err := s.calcService.Enqueue(&calc.Equation{
+	err := s.calcService.Solve(&calc.Equation{
 		ClientInfo: &calc.ClientInfo{
 			ClientID:      req.ClientId,
 			CalculationID: req.Equation.Id,
