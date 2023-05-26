@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	progressIntervalSecs = 1
+	progressIntervalSecs int = 1
 )
 
 // Workload defines the content needed to track progress during the processing of an equation.
@@ -15,30 +15,36 @@ type workload struct {
 	progress *Progress
 }
 
-type equationProcessor struct {
-	results chan *EquationResult // Receive processed equation results on this channel.
-	intake  chan *workload       // Equations waiting to be processed are placed here.
+type dummyProcessor struct {
+	results  chan *EndedEvent    // Receive processed equation results on this channel.
+	progress chan *ProgressEvent // Receive progress on equations on this channel.
+	intake   chan *workload      // Equations waiting to be processed are placed here.
 }
 
-// Create a new instance of the equationProcessor to process equations concurrently and returns the
-// results over a channel.
-func NewEquationProcessor(maxConcurrent int, maxChannelSize int) *equationProcessor {
-	h := &equationProcessor{
-		results: make(chan *EquationResult, maxChannelSize),
-		intake:  make(chan *workload, maxChannelSize),
+// NewDummyProcessor creates a new processor to process equations concurrently. It returns results
+// and progress messages over separate channels. This particular processor is quite stupid. It
+// counts the chars N of the given equation and returns N as result. Furthermore it spends
+// N * progressIntervalSecs seconds processing the equation while sending a progress message every
+// progressIntervalSecs second.
+func NewDummyProcessor(maxConcurrent int, maxChannelSize int) *dummyProcessor {
+	h := &dummyProcessor{
+		results:  make(chan *EndedEvent, maxChannelSize),
+		progress: make(chan *ProgressEvent),
+		intake:   make(chan *workload, maxChannelSize),
 	}
 
 	// Start workers.
 	for i := 0; i < maxConcurrent; i++ {
-		go h.createWorker(h.intake, h.results)
+		go h.createWorker(h.intake, h.results, h.progress)
 	}
 	return h
 }
 
-// Add an equation to be processed.
-func (h *equationProcessor) Add(eq *Equation) {
+// Process enqueues an equation for processing. If the intake channel is full the function will
+// block.
+func (h *dummyProcessor) Process(eq *Equation) {
 	h.intake <- &workload{
-		ticker:   time.NewTicker(progressIntervalSecs * time.Second),
+		ticker:   time.NewTicker(time.Duration(progressIntervalSecs) * time.Second),
 		equation: eq,
 		progress: &Progress{
 			Current: 0,
@@ -47,36 +53,55 @@ func (h *equationProcessor) Add(eq *Equation) {
 	}
 }
 
-func (h *equationProcessor) Results() <-chan *EquationResult {
+// GetResults returns the channel on which equation result messages are posted when they are done.
+func (h *dummyProcessor) GetResults() <-chan *EndedEvent {
 	return h.results
 }
 
+// GetProgress returns the channel on which equation progress messages are posted when they are done.
+func (h *dummyProcessor) GetProgress() <-chan *ProgressEvent {
+	return h.progress
+}
+
 // Creates a worker to process Equations. Call as goroutine.
-func (h *equationProcessor) createWorker(in <-chan *workload, out chan<- *EquationResult) {
+func (h *dummyProcessor) createWorker(in <-chan *workload, resultOut chan<- *EndedEvent, progressOut chan<- *ProgressEvent) {
 	for {
 		select {
 		case w := <-in:
-			w.start(out)
+			w.start(resultOut, progressOut)
 		}
 	}
 }
 
 // Process starts the interval outputted processing of an Equation.
-func (w *workload) start(out chan<- *EquationResult) {
+func (w *workload) start(resultOut chan<- *EndedEvent, progressOut chan<- *ProgressEvent) {
 	for {
 		select {
 		case <-w.ticker.C:
 			w.progress.Current++
 
+			// Send Progress message back.
 			if w.progress.Current < w.progress.Outof {
+				progress := &ProgressEvent{
+					ClientInfo: &ClientInfo{
+						ClientID:      w.equation.ClientID,
+						CalculationID: w.equation.CalculationID,
+					},
+					Progress: w.progress,
+				}
+				progressOut <- progress
 				continue
 			}
 
-			finalResult := &EquationResult{
-				Equation: w.equation,
-				Result:   float64(len(w.equation.Expression)),
+			// Send Result message back.
+			result := &EndedEvent{
+				ClientInfo: &ClientInfo{
+					ClientID:      w.equation.ClientID,
+					CalculationID: w.equation.CalculationID,
+				},
+				Result: float64(len(w.equation.Expression)),
 			}
-			out <- finalResult
+			resultOut <- result
 		}
 	}
 }

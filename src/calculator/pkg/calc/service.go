@@ -1,5 +1,7 @@
 package calc
 
+import "log"
+
 type ClientInfo struct {
 	ClientID      string
 	CalculationID string
@@ -31,8 +33,9 @@ type EndedEvent struct {
 }
 
 type EquationProcessor interface {
-	Add(*Equation)
-	Results() <-chan *EquationResult
+	Process(*Equation)
+	GetResults() <-chan *EndedEvent
+	GetProgress() <-chan *ProgressEvent
 }
 
 type ResultNotifier interface {
@@ -41,32 +44,39 @@ type ResultNotifier interface {
 }
 
 type calculatorService struct {
-	notifier ResultNotifier
+	processor EquationProcessor
+	notifier  ResultNotifier
 }
 
-func NewCalculatorService(notifier ResultNotifier) *calculatorService {
-	return &calculatorService{
-		notifier: notifier,
+func NewCalculatorService(processor EquationProcessor, notifier ResultNotifier) *calculatorService {
+	c := &calculatorService{
+		processor: processor,
+		notifier:  notifier,
 	}
+	go c.handleEvents()
+	return c
 }
 
 // Solve enqueues an equation for solving. The result is returned through the ResultNotifier.
 func (c *calculatorService) Solve(eq *Equation) error {
-	res := float64(len(eq.Expression))
-
-	// proc := NewEquationProcessor(20, 100)
-
-	endEvent := EndedEvent{
-		ClientInfo: &ClientInfo{
-			ClientID:      eq.ClientID,
-			CalculationID: eq.CalculationID,
-		},
-		Result: res,
-	}
-
-	err := c.notifier.Ended(&endEvent)
-	if err != nil {
-		return err
-	}
+	c.processor.Process(eq)
 	return nil
+}
+
+func (c *calculatorService) handleEvents() error {
+	log.Println("listening for equation events")
+	for {
+		select {
+		case p := <-c.processor.GetProgress():
+			err := c.notifier.Progress(p)
+			if err != nil {
+				log.Println("failed to send progress message calculationID:", p.CalculationID)
+			}
+		case r := <-c.processor.GetResults():
+			err := c.notifier.Ended(r)
+			if err != nil {
+				log.Println("failed to send end message for calculationID:", r.CalculationID)
+			}
+		}
+	}
 }
