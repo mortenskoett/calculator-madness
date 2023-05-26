@@ -67,20 +67,20 @@ sequenceDiagram
     participant cal as Calculator
     participant nsq as NSQ
 
-    cli-->>cal: RunCalculation(id)
+    cli->>cal: RunCalculation(id)
     cal-->>cli: CalcRecieved(id)
     Note over cal: Calculator maintains state of calculations
 
     %%cal--)nsq: SendCalcStarted(id)
     loop calc in progress
-        cal--)nsq: SendCalcProgress(id)
+        cal-)nsq: SendCalcProgress(id)
     end
-    cal--)nsq: SendCalcEnded(id)
+    cal-)nsq: SendCalcEnded(id)
 
-    Note over nsq, cli: Client listens for messages on topics
+    Note over nsq, cli: Client listens and receives messages on topics
 
-    cli-)nsq: listen CalcProgress()
-    cli-)nsq: listen CalcEnded()
+    nsq--)cli: CalcProgress()
+    nsq--)cli: CalcEnded()
 ```
 
 ## Creating a new calculation in the viewer
@@ -92,20 +92,51 @@ sequenceDiagram
     participant C as Calculator
     participant Q as NSQ
 
-    B-->>W: New equation
+    B->>W: New equation
 
     Note over W: Keep state of calculations
 
     W-->>B: Create new calc <ID>
 
-    W-->>+C: Start calculation
+    W->>+C: Start calculation
 
     loop while in progress
-        C--)Q: Enqueue calc progress <ID>
+        C-)Q: Enqueue calc progress <ID>
         Q--)W: Return calc progress <ID>
         W-->>B: Send calc progress <ID> event
     end
-    C-->>-Q: Enqueue calc done <ID>
+
+    C->>-Q: Enqueue calc done <ID>
     Q--)W: Return calc done <ID>
     W-->>B: Send calc done <ID> event
+```
+
+## Handling calculation progress and results concurrently
+Sequence diagram showing the interaction of the concurrent handling of equations in the CalculatorService.
+```mermaid
+sequenceDiagram
+    participant CL as Viewer
+    participant GR as GRPCServer
+    participant CS as CalculatorService
+    participant EP as EquationProcessor
+    participant RN as ResultNotifier
+
+    CL->>GR: Request to solve equation
+    GR->>CS: Call Solve(eq)
+    CS->>EP: Send equation to intake chan
+    CS-->>CL: Return OK grpc response
+
+    Note over CL, RN: Equation results are received on queue
+
+    loop for N=len(equation) seconds
+        EP-->>CS: New progress msg
+        CS->>RN: Post progress msg to notifier
+        RN-->>CL: Return progress response to client
+    end
+
+
+    EP-->>CS: Ended equation msg
+    CS->>RN: Post ended equation msg to notifier
+    RN-->>CL: Return ended equation response to client
+
 ```
