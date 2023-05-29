@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	progressIntervalSecs int = 1
+	progressIntervalSecs int = 2
 )
 
 // Workload defines the content needed to track progress during the processing of an equation.
@@ -29,7 +29,7 @@ type dummyProcessor struct {
 func NewDummyProcessor(maxConcurrent int, maxChannelSize int) *dummyProcessor {
 	h := &dummyProcessor{
 		results:  make(chan *EndedEvent, maxChannelSize),
-		progress: make(chan *ProgressEvent),
+		progress: make(chan *ProgressEvent, maxChannelSize),
 		intake:   make(chan *workload, maxChannelSize),
 	}
 
@@ -90,7 +90,7 @@ func (w *workload) start(resultOut chan<- *EndedEvent, progressOut chan<- *Progr
 					Progress: w.progress,
 				}
 				progressOut <- progress
-				continue
+				break
 			}
 
 			// Send Result message back.
@@ -102,6 +102,7 @@ func (w *workload) start(resultOut chan<- *EndedEvent, progressOut chan<- *Progr
 				Result: float64(len(w.equation.Expression)),
 			}
 			resultOut <- result
+			return
 		}
 	}
 }
