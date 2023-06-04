@@ -44,8 +44,12 @@ func NewCalcProgressMessage(clientID string, calcID string, status *Status) (*Ca
 
 // topic implements the Enquable interface
 func (m CalcProgressMessage) topic() string {
-	return CalculationStatusTopic
+	return TopicCalculationStatus
 }
+
+// func (m CalcProgressMessage) msgtype() string {
+// 	return MsgTypeCalculationProgress
+// }
 
 // Specific message designated a calculation has ended
 type CalcEndedMessage struct {
@@ -70,5 +74,9 @@ func NewCalcEndedMessage(clientID string, calcID string, result float64) (*CalcE
 
 // topic implements the Enquable interface
 func (m CalcEndedMessage) topic() string {
-	return CalculationStatusTopic
+	return TopicCalculationStatus
 }
+
+// func (m CalcEndedMessage) msgtype() string {
+// 	return MsgTypeCalculationEnded
+// }

@@ -2,7 +2,9 @@
 // calculatoer status queue.
 package queue
 
-// Topic available in nsq.
+// Calculation topic available in nsq.
 const (
-	CalculationStatusTopic string = "calc_status"
+	TopicCalculationStatus string = "calc_status_topic"
+	TopicCalculationsEnded string = "calc_ended_topic"
 )
+
