@@ -15,6 +15,33 @@ func (m *Manager) NSQCalcProgressHandler(msg *queue.CalcProgressMessage) error {
 
 	log.Printf("received progress calculation for client %v for calculation %v", msg.ClientID, msg.CalculationID)
 
+	c, ok := m.clients[msg.ClientID]
+	if !ok {
+		log.Println("failed to handle progress message: client did not exist")
+		return nil
+	}
+
+	resp := ProgressCalculationResponse{
+		ID: msg.CalculationID,
+		Progress: Progress{
+			Current: msg.Status.Progress.Current,
+			Outof:   msg.Status.Progress.Outof,
+		},
+	}
+
+	bs, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf("failed to marshal progress response: %+v: %v", resp, err)
+		return nil
+	}
+
+	ev := Event{
+		Type:     eventProgressCalculation,
+		Contents: bs,
+	}
+
+	c.send(&ev)
+
 	return nil
 }
 
@@ -40,7 +67,7 @@ func (m *Manager) NSQCalcEndedHandler(msg *queue.CalcEndedMessage) error {
 
 	bs, err := json.Marshal(resp)
 	if err != nil {
-		log.Printf("failed to marshal %+v: %v", resp, err)
+		log.Printf("failed to marshal ended calc response %+v: %v", resp, err)
 		return nil
 	}
 

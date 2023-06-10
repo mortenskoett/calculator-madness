@@ -7,6 +7,7 @@ const RequestEventType = {
 const ResponseEventType = {
 	NEW_CALCULATION: "new_calculation",
 	ENDED_CALCULATION: "ended_calculation",
+	PROGRESS_CALCULATION: "progress_calculation",
 };
 
 class Event {
@@ -40,6 +41,14 @@ class EndCalculationResponse {
 	}
 }
 
+// Response received from backend when a calculation is ended.
+class ProgressCalculationResponse {
+	constructor(id, progress) {
+		this.id = id;
+		this.progress = progress;
+	}
+}
+
 var routing = {
 	// routeEvent handles the incoming events.
 	routeEvent: (evt) => {
@@ -58,6 +67,10 @@ var routing = {
 			case ResponseEventType.ENDED_CALCULATION:
 				const endcalc = Object.assign(new EndCalculationResponse, evt.contents);
 				ui.endCalculation(endcalc)
+				break;
+			case ResponseEventType.PROGRESS_CALCULATION:
+				const progcalc = Object.assign(new ProgressCalculationResponse, evt.contents);
+				ui.progressCalculation(progcalc)
 				break;
 			default:
 				console.log("Unsupported event type received:", evt)
@@ -86,6 +99,7 @@ var ui = {
 		document.getElementById(fname).value = '';
 	},
 
+	// preprends a new calculation to the ongoing list
 	prependCalculation: (calc) => {
 		console.log("Prepending calculation");
 		var calcElem = document.createElement("div");
@@ -106,7 +120,14 @@ var ui = {
 		document.getElementById("ongoing").prepend(calcElem);
 	},
 
-	// Update a calculation by moving it into ended and updating its look
+	progressCalculation: (calc) => {
+		console.log("Progressing calculation");
+		var calcElem = document.getElementById(calc.id);
+		calcElem.getElementsByClassName("progress-indicator")[0].value = `${calc.progress.current}`;
+		calcElem.getElementsByClassName("progress-indicator")[0].max = `${calc.progress.outof}`;
+	},
+
+	// end calculation by moving it into ended and updating its look
 	endCalculation: (calc) => {
 		console.log("Ending calculation");
 

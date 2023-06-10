@@ -28,7 +28,7 @@ func main() {
 	}
 	defer nsqproducer.Stop()
 
-	equationProcessor := calc.NewDummyProcessor(1, 100)
+	equationProcessor := calc.NewDummyProcessor(2, 100)
 	calculationService := calc.NewCalculatorService(equationProcessor, nsqproducer)
 	calcServer, err := api.NewGRPCServer(*calcServerPort, calculationService)
 	if err != nil {

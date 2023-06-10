@@ -52,12 +52,13 @@ services:
       context: ./src
       dockerfile: viewer/Dockerfile.web
     depends_on:
-      - calculator
       - nsqd
       - nsqlookupd
+      - calculator
     ports:
       - "3000:3000"
     environment:
       NSQLOOKUPD_ADDR: "nsqlookupd:4161"
       CALCULATOR_ADDR: "calculator:8000"
+      NSQ_ADDR: "nsqd:4150"
 

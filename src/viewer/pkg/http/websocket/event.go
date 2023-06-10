@@ -20,7 +20,8 @@ const (
 	// When a new calculation is sent back to the UI to be shown.
 	eventNewCalculation = "new_calculation"
 
-	// eventProgressCalculation = "progress_calculation"
+	// When calculation progress is sent to the UI..
+	eventProgressCalculation = "progress_calculation"
 
 	// When a calculation ended is sent back to UI.
 	eventEndedCalculation = "ended_calculation"

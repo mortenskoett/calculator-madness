@@ -30,6 +30,12 @@ type StartCalculationResponse struct {
 
 // Response to UI.
 type EndCalculationResponse struct {
-	ID        string    `json:"id"`
-	Result    float64   `json:"result"`
+	ID     string  `json:"id"`
+	Result float64 `json:"result"`
+}
+
+// Response to UI.
+type ProgressCalculationResponse struct {
+	ID       string   `json:"id"`
+	Progress Progress `json:"progress"`
 }

@@ -18,9 +18,10 @@ import (
 )
 
 var (
-	nsqlookupAddr  = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
-	port           = flag.String("port", env.GetEnvVarOrDefault("PORT", "3000"), "Port on which the UI will be served")
-	calcServerAddr = flag.String("calculator-addr", env.GetEnvVarOrDefault("CALCULATOR_ADDR", "127.0.0.1:8000"), "Port of Calculator server")
+	nsqProducerAddr = flag.String("nsq-addr", env.GetEnvVarOrDefault("NSQ_ADDR", "127.0.0.1:4151"), "Address of nsq server with port")
+	nsqlookupAddr   = flag.String("nsqlookupd-addr", env.GetEnvVarOrDefault("NSQLOOKUPD_ADDR", "127.0.0.1:4161"), "Address of nsqlookupd server with port")
+	port            = flag.String("port", env.GetEnvVarOrDefault("PORT", "3000"), "Port on which the UI will be served")
+	calcServerAddr  = flag.String("calculator-addr", env.GetEnvVarOrDefault("CALCULATOR_ADDR", "127.0.0.1:8000"), "Port of Calculator server")
 )
 
 func main() {
@@ -28,6 +29,14 @@ func main() {
 
 	// Unique topic used by this service
 	calcResultTopic := "web-viewer" + "-" + uuid.NewString()
+
+	// Send initial message to prime nsq with topic.
+	log.Println("sending initial dummy message to nsq")
+	dummyProducer, err := queue.NewNSQProducer(*nsqProducerAddr)
+	dummyInitialMessage := queue.CalcEndedMessage{MessageMetadata: &queue.MessageMetadata{MessageTopic: calcResultTopic}}
+	if err = dummyProducer.Publish(dummyInitialMessage); err != nil {
+		log.Println("failed to sent initial dummy message to prime nsq")
+	}
 
 	// Context used to synchronize shutdown of goroutines.
 	ctx, cancel := context.WithCancel(context.Background())
