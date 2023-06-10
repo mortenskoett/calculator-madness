@@ -5,6 +5,7 @@ import "log"
 type ClientInfo struct {
 	ClientID      string
 	CalculationID string
+	ResultTopic   string
 }
 
 type Equation struct {

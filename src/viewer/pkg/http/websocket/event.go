@@ -45,13 +45,15 @@ type handler func(e *Event, c *client) error
 type EventRouter struct {
 	handlers   map[string]handler
 	calculator Calculator
+	topic      string
 }
 
 // NewEventRouter returns a router instance to handle incoming events.
-func NewEventRouter(calc Calculator) *EventRouter {
+func NewEventRouter(calc Calculator, resultTopic string) *EventRouter {
 	r := EventRouter{
 		handlers:   map[string]handler{},
 		calculator: calc,
+		topic:      resultTopic,
 	}
 	r.attach(eventStartCalculation, r.handleStartCalculation)
 	return &r
@@ -105,11 +107,9 @@ func (r *EventRouter) handleStartCalculation(ev *Event, c *client) error {
 
 	// Send equation to calculation backend.
 	calcresp, err := r.calculator.Run(context.TODO(), &pb.RunCalculationRequest{
-		ClientId: c.id,
-		Equation: &pb.Equation{
-			Id:    resp.ID,
-			Value: req.Equation,
-		},
+		ClientId:    c.id,
+		Equation:    &pb.Equation{Id: resp.ID, Value: req.Equation},
+		ResultTopic: r.topic,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to send calculation request: %w", err)

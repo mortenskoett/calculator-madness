@@ -9,7 +9,7 @@ import (
 
 // Interface for types that can be enqueued.
 type Enqueable interface {
-	topic() string
+	topic() string // Topic returns the topic to which the message should be published.
 }
 
 type NsqQueueProducer struct {

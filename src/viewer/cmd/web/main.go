@@ -12,12 +12,9 @@ import (
 	"viewer/pkg/http"
 	"viewer/pkg/http/websocket"
 
+	"github.com/google/uuid"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-)
-
-const (
-	serviceNameChannel string = "viewer-web"
 )
 
 var (
@@ -28,6 +25,9 @@ var (
 
 func main() {
 	flag.Parse()
+
+	// Unique topic used by this service
+	calcResultTopic := "web-viewer" + "-" + uuid.NewString()
 
 	// Context used to synchronize shutdown of goroutines.
 	ctx, cancel := context.WithCancel(context.Background())
@@ -45,19 +45,27 @@ func main() {
 	calcClient := pb.NewCalculationServiceClient(conn)
 
 	// Websocket handling
-	wsrouter := websocket.NewEventRouter(calcClient)
+	wsrouter := websocket.NewEventRouter(calcClient, calcResultTopic)
 	wsmanager := websocket.NewManager(wsrouter)
 
-	// NSQ client
-	nsqconsumer, err := queue.NewNSQConsumer(*nsqlookupAddr, queue.CalculationStatusTopic, serviceNameChannel)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer nsqconsumer.Stop()
-// 	// TODO: Implement handling of progress events
-	// nsqconsumer.AddCalcProgressHandler(wsmanager.NSQCalcProgressHandler)
-	nsqconsumer.AddCalcEndedHandler(wsmanager.NSQCalcEndedHandler)
-	go nsqconsumer.Start(ctx)
+	// NSQ clients
+	nsqConsumer, err := queue.NewNSQUniqueConsumer[queue.Enqueable](*nsqlookupAddr, calcResultTopic)
+	defer nsqConsumer.Stop()
+	go nsqConsumer.Start(ctx)
+
+	nsqConsumer.SetHandler(func(msg queue.Enqueable) error {
+		switch m := msg.(type) {
+		case queue.CalcProgressMessage:
+			if err := wsmanager.NSQCalcProgressHandler(&m); err != nil {
+				return err
+			}
+		case queue.CalcEndedMessage:
+			if err := wsmanager.NSQCalcEndedHandler(&m); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	// HTTP server
 	config := http.Config{Port: *port}
