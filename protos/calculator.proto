@@ -17,6 +17,7 @@ message Equation {
 message RunCalculationRequest {
   string client_id = 1;
   Equation equation = 2;
+  string result_topic = 3;
 }
 
 // Response to signal a requst has been successfully recieved.
