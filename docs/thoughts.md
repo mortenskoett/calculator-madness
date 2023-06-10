@@ -1,5 +1,26 @@
 # Rethinking how to use NSQ
 
+## Sun Jun  4 09:13:20 PM CEST 2023
+The following makes it possible to affiliate exactly one topic with exactly one viewer instance.
+
+- if each message can take its own topic:
+    - the producer simply publishes to the given `topic`
+    - the consumer must:
+        - take care of where the message is published to
+        - make sure that it is using a unique `channel` name for all messages consumed
+        - somehow let nsq know when the `topic` is no longer needed
+
+ideas:
+- the consumer can actually just give itself a unique name it is created so the viewer doens't have
+    to know.
+- the consumer callback then needs to implement a switch statement on the types of messages
+    received. This can be implemented in the background in the consumer and custom made message
+    handlers can be used this way.
+
+howto:
+- rewrite consumer.go so that handlers will only receive messages with a specific type
+- make it possible to delete a topic when consumer is shut down
+
 ## How the NSQ Go lib works
 - a consumer subscribes to a channel and the channel recieves from a single topic
 - if multiple consumers use same channel, only one of the consumers will recieve a sent message (concurrency pattern)

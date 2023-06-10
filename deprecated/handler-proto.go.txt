@@ -1,0 +1,31 @@
+
+
+// type Consumer[T any] interface {
+// 	Start(context.Context)
+// 	Stop()
+// 	SetHandler(func(msg T) error)
+// }
+
+// type calcEventListener[T any] struct {
+// 	consumer Consumer[T]
+// }
+
+// func NewCalcEventListener[T any](c Consumer[T]) *calcEventListener[T] {
+// 	return &calcEventListener[T]{
+// 		consumer: c,
+// 	}
+// }
+
+// func (m *calcEventListener[T]) Listen(ctx context.Context) error {
+// 	for {
+// 		select {
+// 		case r := <-m.consumer.GetResultsChannel():
+// 			switch msg := any(r).(type) {
+// 			case queue.CalcEndedMessage:
+// 				log.Println(msg)
+// 			case queue.CalcProgressMessage:
+// 				log.Println(msg)
+// 			}
+// 		}
+// 	}
+// }
