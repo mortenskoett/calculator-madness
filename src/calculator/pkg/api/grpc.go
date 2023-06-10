@@ -72,6 +72,7 @@ func (s *CalculationGRPCServer) Run(context context.Context, req *pb.RunCalculat
 		ClientInfo: &calc.ClientInfo{
 			ClientID:      req.ClientId,
 			CalculationID: req.Equation.Id,
+			ResultTopic:   req.ResultTopic,
 		},
 		Expression: req.Equation.Value,
 	})

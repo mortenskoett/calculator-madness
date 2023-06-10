@@ -23,12 +23,13 @@ func NewNSQProducer(addr string) (*nsqProducer, error) {
 
 // Implements ResultNotifier.
 func (n *nsqProducer) Progress(ev *calc.ProgressEvent) error {
-	progMsg, err := queue.NewCalcProgressMessage(ev.ClientID, ev.CalculationID, &queue.Status{
+	progMsg, err := queue.NewCalcProgressMessage(ev.ClientID, ev.CalculationID, ev.ResultTopic, &queue.Status{
 		Progress: queue.Progress{
 			Current: ev.Current,
 			Outof:   ev.Outof,
 		},
 	})
+
 	if err != nil {
 		return err
 	}
@@ -43,12 +44,14 @@ func (n *nsqProducer) Progress(ev *calc.ProgressEvent) error {
 
 // Implements ResultNotifier.
 func (n *nsqProducer) Ended(ev *calc.EndedEvent) error {
-	endMsg, err := queue.NewCalcEndedMessage(ev.ClientID, ev.CalculationID, ev.Result)
+	endMsg, err := queue.NewCalcEndedMessage(ev.ClientID, ev.CalculationID, ev.ResultTopic, ev.Result)
+
 	if err != nil {
 		return err
 	}
 
 	err = n.producer.Publish(endMsg)
+
 	if err != nil {
 		return err
 	}

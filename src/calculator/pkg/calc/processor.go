@@ -83,11 +83,8 @@ func (w *workload) start(resultOut chan<- *EndedEvent, progressOut chan<- *Progr
 			// Send Progress message back.
 			if w.progress.Current < w.progress.Outof {
 				progress := &ProgressEvent{
-					ClientInfo: &ClientInfo{
-						ClientID:      w.equation.ClientID,
-						CalculationID: w.equation.CalculationID,
-					},
-					Progress: w.progress,
+					ClientInfo: w.equation.ClientInfo,
+					Progress:   w.progress,
 				}
 				progressOut <- progress
 				break
@@ -95,11 +92,8 @@ func (w *workload) start(resultOut chan<- *EndedEvent, progressOut chan<- *Progr
 
 			// Send Result message back.
 			result := &EndedEvent{
-				ClientInfo: &ClientInfo{
-					ClientID:      w.equation.ClientID,
-					CalculationID: w.equation.CalculationID,
-				},
-				Result: float64(len(w.equation.Expression)),
+				ClientInfo: w.equation.ClientInfo,
+				Result:     float64(len(w.equation.Expression)),
 			}
 			resultOut <- result
 			return

@@ -8,29 +8,28 @@ import (
 
 // Callback to handle incoming calculation ended events on NSQ.
 // Warning: When returning error here, the message will be resent with a backoff.
-// func (m *Manager) NSQCalcProgressHandler(msg *queue.CalcProgressMessage, err error) error {
-// 	m.clients[msg.ClientID].send()
+func (m *Manager) NSQCalcProgressHandler(msg *queue.CalcProgressMessage) error {
+	if msg == nil {
+		return nil
+	}
 
-// 	log.Printf("Calc progress: calcID: %+v, msgID: %+v, time: %+v\n",
-// 		msg.CalculationID,
-// 		msg.MessageID,
-// 		msg.CreatedTime,
-// 	)
+	log.Printf("received progress calculation for client %v for calculation %v", msg.ClientID, msg.CalculationID)
 
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
+	return nil
+}
 
 // Callback to handle incoming calculation ended events on NSQ.
 // Warning: When returning error here, the message will be resent with a backoff.
-func (m *Manager) NSQCalcEndedHandler(msg *queue.CalcEndedMessage, err error) error {
+func (m *Manager) NSQCalcEndedHandler(msg *queue.CalcEndedMessage) error {
+	if msg == nil {
+		return nil
+	}
+
 	log.Printf("received ended calculation for client %v for calculation %v", msg.ClientID, msg.CalculationID)
 
 	c, ok := m.clients[msg.ClientID]
 	if !ok {
-		log.Println("failed to handle ended calculation: client did not exist: %w", err)
+		log.Println("failed to handle ended calculation: client did not exist")
 		return nil
 	}
 

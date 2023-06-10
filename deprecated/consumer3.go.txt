@@ -1,0 +1,148 @@
+package queue
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+
+	"github.com/nsqio/go-nsq"
+	"github.com/pkg/errors"
+)
+
+type HandlerCallback[T Enqueable] func(*T, error) error
+
+// Callback types
+// type CalcProgressCallback3 func(*CalcProgressMessage, error) error
+// type CalcEndedCallback3 func(*CalcEndedMessage, error) error
+
+type NsqUniqueTopicConsumer3[T Enqueable] struct {
+	topic         string
+	channel       string
+	nsqlookupAddr string
+	consumer      *nsq.Consumer
+}
+
+func NewUniqueNSQConsumer3[T Enqueable](nsqlookupdAddr string, topic string) (*NsqUniqueTopicConsumer3[T], error) {
+	log.Println("creating new nsq consumer")
+
+	channel := topic
+	config := nsq.NewConfig()
+	consumer, err := nsq.NewConsumer(topic, channel, config)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create nsq consumer")
+	}
+
+	cons := NsqUniqueTopicConsumer3[T]{
+		topic:         topic,
+		channel:       channel,
+		nsqlookupAddr: nsqlookupdAddr,
+		consumer:      consumer,
+	}
+	// cons.setCalculationMessageHandler()
+	return &cons, nil
+}
+
+func (c *NsqUniqueTopicConsumer3[T]) Start(ctx context.Context) {
+	log.Println("connecting to nsqlookupd")
+	// Use nsqlookupd to discover nsqd instances.
+	// See also ConnectToNSQD, ConnectToNSQDs, ConnectToNSQLookupds.
+	err := c.consumer.ConnectToNSQLookupd(c.nsqlookupAddr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Handle shutdown using context
+	<-ctx.Done()
+	log.Println("stopping nsq consumer: cancelled by context.")
+	return
+}
+
+// Should be a deferred call to stop the consumer gracefully.
+func (c *NsqUniqueTopicConsumer3[T]) Stop() {
+	// Gracefully stop the consumer.
+	c.consumer.Stop()
+	log.Println("nsq consumer stopped")
+}
+
+// func (c *NsqUniqueTopicConsumer3[T]) GetProgressChannel() <-chan *CalcProgressMessage {
+// 	return c.progress
+// }
+
+// func (c *NsqUniqueTopicConsumer3[T]) GetEndedChannel() {
+// }
+
+// func (c *NsqUniqueTopicConsumer3[T]) handleMessages(m *nsq.Message) error {
+// 	if len(m.Body) == 0 {
+// 		// Returning nil will send a FIN command to NSQ marking the message as processed.
+// 		return nil
+// 	}
+
+// 	var msg any
+// 	err := json.Unmarshal(m.Body, &msg)
+// 	if err != nil {
+// 		return err
+// 	}
+
+// 	switch t := msg.(type) {
+// 	case CalcEndedMessage:
+// 		log.Println(t.Topic)
+// 	case CalcProgressMessage:
+// 		log.Println(t.Topic)
+// 	}
+
+// 	return nil
+// }
+
+// this handler takes care of all incoming messages types for this consumer.
+// func (c *NsqUniqueTopicConsumer3[T]) setCalculationMessageHandler() {
+// 	c.consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
+// return c.handleMessages(m)
+// }))
+// }
+
+func (c *NsqUniqueTopicConsumer3[T]) SetHandler(h HandlerCallback[T]) {
+	c.consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
+		// return attachCallback3(m, handler)
+
+		msg, err := unmarshalMessage3[T](m)
+		if err != nil {
+			// This will return a nil value to the callback function.
+			return h(nil, err)
+		}
+		return h(msg, nil)
+	}))
+}
+
+/* Code to handle each incoming message */
+
+// func (c *NsqUniqueTopicConsumer3[T]) addCallback3(fn func(*T, error) error) {
+// 	c.consumer.AddHandler(nsq.HandlerFunc(func(m *nsq.Message) error {
+// 		return attachCallback3(m, fn)
+// 	}))
+// }
+
+// func attachCallback3[T Enqueable](m *nsq.Message, callback callback3[T]) error {
+// 	msg, err := unmarshalMessage[T](m)
+// 	if err != nil {
+// 		return callback(nil, err)
+// 	}
+// 	return callback(msg, nil)
+// }
+
+// Unmarshal a received nsq message.
+func unmarshalMessage3[T Enqueable](m *nsq.Message) (*T, error) {
+	if len(m.Body) == 0 {
+		// Returning nil will send a FIN command to NSQ marking the message as processed.
+		return nil, nil
+	}
+
+	var msg T
+	err := json.Unmarshal(m.Body, &msg)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal the message body: %w", err)
+	}
+
+	// Returning a non-nil error will automatically send a REQ command to NSQ to re-queue the message.
+	return &msg, nil
+}
