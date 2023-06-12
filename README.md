@@ -30,7 +30,7 @@ grpcurl --plaintext localhost:8000 list
 ```
 
 ### Debugging lookupd / running locally
-- If using nsqlookupd it can be necessary to set broadcast address of nsqd to run dockers intances along with instances running on the host e.g. for debugging. See: https://github.com/nsqio/go-nsq/issues/69
+- If using nsqlookupd it can be necessary to set broadcast address of nsqd to be able to run nsq in docker next to other services running on the host e.g. for debugging. See: https://github.com/nsqio/go-nsq/issues/69
 
 ```
 command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 #--broadcast-address=127.0.0.1 #example for debugging locally
