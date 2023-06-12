@@ -1,0 +1,71 @@
+/* Variables */
+:root {
+  --color-dark: #2f2f2f;
+  --color-light: #fff;
+  --color-brand: #57bd84;
+  --left-padding: 10px;
+  --big-font: 17px;
+}
+
+body {
+  background-color: #f7f7f7;
+}
+
+.calc-wrapper .result-elem {
+  background-color: white;
+  padding: 8px;
+  margin: 8px 20px 8px 20px;
+  /* border-style:solid; */
+  /* border-color: gray; */
+  /* border-radius: 10px; */
+  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, .1);
+  display:grid;
+  grid-template-columns: auto auto;
+  vertical-align: middle;
+}
+
+progress {
+  background-color: #f3f3f3;
+  border: 0;
+  height: 18px;
+  border-radius: 9px;
+  width: 300px;
+}
+
+h5 {
+  margin: 10px;
+}
+
+.calc-wrapper .result-elem {
+  display:flex;
+}
+
+.calc-wrapper .progress-bar {
+  display: flex;
+  flex-direction: row;
+  margin-left:auto;
+}
+
+.result-elem img {
+  display:flex;
+  margin: 0 10px 0 0;
+}
+
+.calc-result-div {
+  display: flex;
+  flex-direction: row;
+}
+
+#ongoing img {
+  animation: rotation 12s infinite linear;
+}
+
+/* To handle rotation */
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(359deg);
+  }
+}

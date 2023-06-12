@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch viewer CLI",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/cli/",
+            "args": [""],
+            "env": {
+                "NSQLOOKUPD_ADDR": "127.0.0.1:4161"
+            }
+        },
+        {
+            "name": "Launch viewer Web",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/cmd/web/",
+            "args": ["-port", "3002"],
+            "env": {
+                "NSQLOOKUPD_ADDR": "127.0.0.1:4161"
+            }
+        }
+    ]
+}
