@@ -2,7 +2,7 @@
 Microservice playground with a calculator theme.
 **This project does nothing and is not used for anyting other than learning.**
 
-https://github.com/mortenskoett/calculator/assets/17837870/9d559922-f21f-45de-a613-b62ea94271b6
+https://github.com/mortenskoett/calculator-madness/assets/17837870/8c066d91-523f-4b28-8727-fbf2b9fda362
 
 ## So what is it?
 This is a small application that takes text input (an equation) and spends an inordinate amount of time counting how many chars the equation consists of. The complexity lies in the backend which has a microservice-based architecture that facilitates async message handling between `calculator` and `viewer`.
