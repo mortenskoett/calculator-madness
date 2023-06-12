@@ -21,7 +21,7 @@ make build run
 
 ### Make a query against the calculator
 ```
-grpcurl -plaintext -d '{"equation":"1+1"}' localhost:8000 calculator.CalculationService/Run
+grpcurl -plaintext -d '{"client_id":"<cid>", "equation":{"id":"<eid>", "value":"1+1"}, "result_topic":"<topic>"}' localhost:8000 calculator.CalculationService/Run
 ```
 
 ### List all grpc endpoints of the calculator
