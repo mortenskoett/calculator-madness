@@ -1,0 +1,40 @@
+version: '3.9'
+services:
+  nsqd:
+    image: nsqio/nsq
+    command: /nsqd
+    ports:
+      - "4150:4150" # client
+      - "4151:4151" # http
+
+  nsqadmin:
+    image: nsqio/nsq
+    command: /nsqadmin --nsqd-http-address=nsqd:4151
+    ports:
+      - "4171:4171"
+
+  calculator:
+    build:
+      context: ./src
+      dockerfile: calculator/Dockerfile.server
+    depends_on:
+      - nsqd
+    ports:
+      - "8000:8000"
+    environment:
+      SERVER_PORT: "8000"
+      NSQ_CLIENT_ADDR: "nsqd:4150"
+
+  viewer:
+    build:
+      context: ./src
+      dockerfile: viewer/Dockerfile.web
+    depends_on:
+      - nsqd
+      - calculator
+    ports:
+      - "3000:3000"
+    environment:
+      NSQ_CLIENT_ADDR: "nsqd:4150"
+      NSQ_HTTP_ADDR: "nsqd:4151"
+      CALCULATOR_ADDR: "calculator:8000"
